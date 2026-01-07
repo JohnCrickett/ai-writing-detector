@@ -1,3 +1,5 @@
+![image](img/ai-writing-detector.jpg)
+
 # AI Writing Detector
 
 This is a simple AI writing detector.
