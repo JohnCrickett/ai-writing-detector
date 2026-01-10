@@ -117,8 +117,8 @@ export default function Home() {
                 <li>• AI vocabulary markers</li>
                 <li>• Undue emphasis patterns</li>
                 <li>• Promotional language</li>
-                <li>• Didactic disclaimers</li>
-                <li>• And 4 more categories</li>
+                <li>• Negative parallelism constructions</li>
+                <li>• And 3 more categories</li>
               </ul>
             </div>
           </div>
