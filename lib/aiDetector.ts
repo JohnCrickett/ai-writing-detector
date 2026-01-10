@@ -20,9 +20,15 @@ import {
   SUPERFICIAL_ANALYSIS_COLOR,
   type SuperficialAnalysisMatch,
 } from './superficialAnalysis';
+import {
+  detectPromotionalLanguage,
+  generatePromotionalLanguageHighlights,
+  PROMOTIONAL_LANGUAGE_COLOR,
+  type PromotionalLanguageMatch,
+} from './promotionalLanguage';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -50,14 +56,19 @@ export function analyzeText(text: string): DetectionMetrics {
   const superficialAnalysisMatches = detectSuperficialAnalysis(text);
   const superficialAnalysisHighlights = generateSuperficialAnalysisHighlights(text, superficialAnalysisMatches);
   
+  // Detect promotional language
+  const promotionalLanguageMatches = detectPromotionalLanguage(text);
+  const promotionalLanguageHighlights = generatePromotionalLanguageHighlights(text, promotionalLanguageMatches);
+  
   // Combine all highlights
-  const highlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights];
+  const highlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights];
   
   // Calculate score based on all detectors
   let score = 0;
   let aiVocabWordCount = 0;
   let undueEmphasisCount = 0;
   let superficialAnalysisCount = 0;
+  let promotionalLanguageCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -72,6 +83,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (superficialAnalysisMatches.length > 0) {
     superficialAnalysisCount = superficialAnalysisMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(superficialAnalysisMatches.length * 4, 30);
+  }
+  
+  if (promotionalLanguageMatches.length > 0) {
+    promotionalLanguageCount = promotionalLanguageMatches.reduce((sum, match) => sum + match.count, 0);
+    score += Math.min(promotionalLanguageMatches.length * 3, 25);
   }
 
   // Build patterns array
@@ -101,6 +117,15 @@ export function analyzeText(text: string): DetectionMetrics {
       phrase: `${superficialAnalysisMatches.length} distinct patterns (${superficialAnalysisCount} total occurrences)`,
       count: superficialAnalysisCount,
       score: Math.min(superficialAnalysisMatches.length * 4, 30),
+    });
+  }
+
+  if (promotionalLanguageMatches.length > 0) {
+    patterns.push({
+      category: 'Promotional Language',
+      phrase: `${promotionalLanguageMatches.length} distinct phrases (${promotionalLanguageCount} total occurrences)`,
+      count: promotionalLanguageCount,
+      score: Math.min(promotionalLanguageMatches.length * 3, 25),
     });
   }
 
