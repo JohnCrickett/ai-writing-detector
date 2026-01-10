@@ -44,9 +44,15 @@ import {
   RULE_OF_THREE_COLOR,
   type RuleOfThreeMatch,
 } from './ruleOfThree';
+import {
+  detectVagueAttributions,
+  generateVagueAttributionHighlights,
+  VAGUE_ATTRIBUTION_COLOR,
+  type VagueAttributionMatch,
+} from './vagueAttributions';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -90,8 +96,12 @@ export function analyzeText(text: string): DetectionMetrics {
   const ruleOfThreeMatches = detectRuleOfThree(text);
   const ruleOfThreeHighlights = generateRuleOfThreeHighlights(text, ruleOfThreeMatches);
   
+  // Detect vague attributions
+  const vagueAttributionMatches = detectVagueAttributions(text);
+  const vagueAttributionHighlights = generateVagueAttributionHighlights(text, vagueAttributionMatches);
+  
   // Combine all highlights
-  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights];
+  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights];
   
   // Sort by start position
   allHighlights.sort((a, b) => a.start - b.start);
@@ -116,6 +126,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let outlineConclusionCount = 0;
   let negativeParallelismCount = 0;
   let ruleOfThreeCount = 0;
+  let vagueAttributionCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -150,6 +161,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (ruleOfThreeMatches.length > 0) {
     ruleOfThreeCount = ruleOfThreeMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(ruleOfThreeMatches.length * 5, 30);
+  }
+
+  if (vagueAttributionMatches.length > 0) {
+    vagueAttributionCount = vagueAttributionMatches.reduce((sum, match) => sum + match.count, 0);
+    score += Math.min(vagueAttributionMatches.length * 4, 30);
   }
 
   // Build patterns array
@@ -215,6 +231,15 @@ export function analyzeText(text: string): DetectionMetrics {
       phrase: `${ruleOfThreeMatches.length} distinct pattern(s) (${ruleOfThreeCount} total occurrences)`,
       count: ruleOfThreeCount,
       score: Math.min(ruleOfThreeMatches.length * 5, 30),
+    });
+  }
+
+  if (vagueAttributionMatches.length > 0) {
+    patterns.push({
+      category: 'Vague Attributions',
+      phrase: `${vagueAttributionMatches.length} distinct phrase(s) (${vagueAttributionCount} total occurrences)`,
+      count: vagueAttributionCount,
+      score: Math.min(vagueAttributionMatches.length * 4, 30),
     });
   }
 
