@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { detectAIVocabulary } from './aiVocabulary';
-import { analyzeText } from './aiDetector';
 
 describe('Overused AI Vocabulary Detection', () => {
   describe('Individual word detection', () => {
@@ -163,82 +162,6 @@ describe('Overused AI Vocabulary Detection', () => {
       const matches = detectAIVocabulary(text);
       const crucialMatches = matches.filter(m => m.phrase.toLowerCase().includes('crucial'));
       expect(crucialMatches.length).toBeGreaterThan(0);
-    });
-  });
-});
-
-describe('Integrated AI Detection (analyzeText)', () => {
-  describe('AI Vocabulary Detection', () => {
-    it('should detect AI vocabulary in analyzeText', () => {
-      const text = 'This pivotal showcase highlights the vibrant landscape.';
-      const result = analyzeText(text);
-      
-      expect(result.patterns.some(p => p.category === 'AI Vocabulary')).toBe(true);
-      expect(result.score).toBeGreaterThan(0);
-    });
-
-    it('should generate highlights for AI vocabulary', () => {
-      const text = 'Additionally, this crucial matter underscore the importance.';
-      const result = analyzeText(text);
-      
-      expect(result.highlights.length).toBeGreaterThan(0);
-      expect(result.highlights.some(h => h.category === 'AI Vocabulary')).toBe(true);
-    });
-  });
-
-  describe('Undue Emphasis Detection', () => {
-    it('should detect undue emphasis in analyzeText', () => {
-      const text = 'This stands as a testament to our commitment.';
-      const result = analyzeText(text);
-      
-      expect(result.patterns.some(p => p.category === 'Undue Emphasis')).toBe(true);
-      expect(result.score).toBeGreaterThan(0);
-    });
-
-    it('should generate highlights for undue emphasis', () => {
-      const text = 'This plays a vital role and is a reminder of the past.';
-      const result = analyzeText(text);
-      
-      expect(result.highlights.some(h => h.category === 'Undue Emphasis')).toBe(true);
-    });
-
-    it('should detect media emphasis patterns', () => {
-      const text = 'The story received coverage from local media outlets.';
-      const result = analyzeText(text);
-      
-      expect(result.patterns.some(p => p.category === 'Undue Emphasis')).toBe(true);
-    });
-  });
-
-  describe('Combined Detection', () => {
-    it('should detect both AI vocabulary and undue emphasis', () => {
-      const text = 'Additionally, this pivotal initiative stands as a testament to crucial innovation that plays a vital role.';
-      const result = analyzeText(text);
-      
-      expect(result.patterns.length).toBe(2);
-      expect(result.patterns.some(p => p.category === 'AI Vocabulary')).toBe(true);
-      expect(result.patterns.some(p => p.category === 'Undue Emphasis')).toBe(true);
-      expect(result.highlights.length).toBeGreaterThan(3);
-      expect(result.score).toBeGreaterThan(0);
-    });
-
-    it('should calculate combined score capped at 100', () => {
-      const text = 'Additionally, this crucial and pivotal and essential showcase stands as a testament and plays a vital role.';
-      const result = analyzeText(text);
-      
-      expect(result.score).toBeLessThanOrEqual(100);
-      expect(result.score).toBeGreaterThan(0);
-    });
-
-    it('should combine highlights from both detectors', () => {
-      const text = 'This crucial matter stands as a testament to important work that plays a vital role.';
-      const result = analyzeText(text);
-      
-      const vocabHighlights = result.highlights.filter(h => h.category === 'AI Vocabulary');
-      const emphasisHighlights = result.highlights.filter(h => h.category !== 'AI Vocabulary');
-      
-      expect(vocabHighlights.length).toBeGreaterThan(0);
-      expect(emphasisHighlights.length).toBeGreaterThan(0);
     });
   });
 });

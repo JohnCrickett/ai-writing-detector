@@ -18,17 +18,18 @@ export default function Home() {
       const result = analyzeText(text);
 
       // Store results in sessionStorage to pass to analysis page
-      sessionStorage.setItem(
-        "analysisData",
-        JSON.stringify({
-          text,
-          wordCount,
-          aiScore: Math.round(result.score * 10) / 10,
-          factors: result.factors,
-          patterns: result.patterns,
-          timestamp: new Date().toISOString(),
-        }),
-      );
+       sessionStorage.setItem(
+         "analysisData",
+         JSON.stringify({
+           text,
+           wordCount,
+           aiScore: Math.round(result.score * 10) / 10,
+           factors: result.factors,
+           patterns: result.patterns,
+           highlights: result.highlights,
+           timestamp: new Date().toISOString(),
+         }),
+       );
 
       router.push("/analysis");
     } catch (error) {

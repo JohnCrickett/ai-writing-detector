@@ -4,6 +4,86 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+interface TextHighlight {
+  start: number;
+  end: number;
+  factor: string;
+  category: string;
+  color?: string;
+}
+
+function HighlightedText({
+  text,
+  highlights,
+}: {
+  text: string;
+  highlights: TextHighlight[];
+}) {
+  if (!highlights || highlights.length === 0) {
+    return (
+      <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
+        {text}
+      </p>
+    );
+  }
+
+  const segments: Array<{
+    type: 'text' | 'highlight';
+    content: string;
+    category?: string;
+  }> = [];
+  let lastIndex = 0;
+
+  highlights.forEach((highlight, idx) => {
+    // Add text before highlight
+    if (lastIndex < highlight.start) {
+      segments.push({
+        type: 'text',
+        content: text.substring(lastIndex, highlight.start),
+      });
+    }
+
+    // Add highlighted text
+    segments.push({
+      type: 'highlight',
+      content: text.substring(highlight.start, highlight.end),
+      category: highlight.category,
+    });
+
+    lastIndex = highlight.end;
+  });
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    segments.push({
+      type: 'text',
+      content: text.substring(lastIndex),
+    });
+  }
+
+  return (
+    <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
+      {segments.map((segment, idx) =>
+        segment.type === 'highlight' ? (
+          <span
+            key={idx}
+            style={{
+              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : '#ec4899',
+              color: '#1e293b',
+            }}
+            className="font-semibold rounded px-1"
+            title={segment.category}
+          >
+            {segment.content}
+          </span>
+        ) : (
+          <span key={idx}>{segment.content}</span>
+        ),
+      )}
+    </p>
+  );
+}
+
 interface AnalysisData {
   text: string;
   wordCount: number;
@@ -21,6 +101,12 @@ interface AnalysisData {
     phrase: string;
     count: number;
     score: number;
+  }>;
+  highlights?: Array<{
+    start: number;
+    end: number;
+    factor: string;
+    category: string;
   }>;
 }
 
@@ -135,14 +221,36 @@ export default function AnalysisPage() {
           </div>
         </div>
 
-        {/* Original Text */}
+        {/* Original Text with Highlights */}
         <div className="bg-white dark:bg-slate-900 rounded-lg shadow p-8 mb-8">
           <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">Original Text</h3>
           <div className="bg-slate-50 dark:bg-slate-800 rounded p-4 max-h-48 overflow-y-auto">
-            <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
-              {data.text}
-            </p>
+            {data.highlights && data.highlights.length > 0 ? (
+              <HighlightedText text={data.text} highlights={data.highlights} />
+            ) : (
+              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap break-words">
+                {data.text}
+              </p>
+            )}
           </div>
+          {data.highlights && data.highlights.length > 0 && (
+            <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mb-3 font-semibold">Detected factors:</p>
+              <div className="flex flex-wrap gap-2">
+                {Array.from(new Set(data.highlights.map((h) => h.category))).map((category) => {
+                  const bgColor = category?.includes('Vocabulary') ? 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200' : 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200';
+                  return (
+                    <span
+                      key={category}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${bgColor}`}
+                    >
+                      {category}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Analysis Details */}
@@ -222,20 +330,30 @@ export default function AnalysisPage() {
             {data.patterns && data.patterns.length > 0 && (
               <>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 mt-6 border-t border-slate-200 dark:border-slate-700 pt-6">Pattern Detection</h4>
-                {data.patterns.map((pattern, idx) => (
-                  <div key={idx} className="mt-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-slate-600 dark:text-slate-400">{pattern.category}</span>
-                      <span className="text-slate-900 dark:text-white font-semibold">{pattern.score}%</span>
+                {data.patterns.map((pattern, idx) => {
+                  const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : '#ec4899';
+                  
+                  const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : 'text-pink-700 dark:text-pink-300';
+                  
+                  return (
+                    <div key={idx} className="mt-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className={`${labelColor} font-medium`}>{pattern.category}</span>
+                        <span className="text-slate-900 dark:text-white font-semibold">{pattern.score}%</span>
+                      </div>
+                      <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                        <div
+                          className="rounded-full"
+                          style={{ 
+                            width: `${pattern.score}%`,
+                            backgroundColor: barColor,
+                            height: '100%'
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
-                      <div
-                        className="h-full bg-purple-600 rounded-full"
-                        style={{ width: `${pattern.score}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </>
             )}
 
