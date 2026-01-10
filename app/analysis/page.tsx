@@ -68,7 +68,7 @@ function HighlightedText({
           <span
             key={idx}
             style={{
-              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : '#ec4899',
+              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : segment.category?.includes('Superficial') ? '#8b5cf6' : '#ec4899',
               color: '#1e293b',
             }}
             className="font-semibold rounded px-1"
@@ -238,7 +238,7 @@ export default function AnalysisPage() {
               <p className="mb-3 font-semibold">Detected factors:</p>
               <div className="flex flex-wrap gap-2">
                 {Array.from(new Set(data.highlights.map((h) => h.category))).map((category) => {
-                  const bgColor = category?.includes('Vocabulary') ? 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200' : 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200';
+                    const bgColor = category?.includes('Vocabulary') ? 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200' : category?.includes('Superficial') ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' : 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200';
                   return (
                     <span
                       key={category}
@@ -331,9 +331,9 @@ export default function AnalysisPage() {
               <>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 mt-6 border-t border-slate-200 dark:border-slate-700 pt-6">Pattern Detection</h4>
                 {data.patterns.map((pattern, idx) => {
-                  const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : '#ec4899';
-                  
-                  const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : 'text-pink-700 dark:text-pink-300';
+                   const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : pattern.category === 'Superficial Analysis' ? '#8b5cf6' : '#ec4899';
+                   
+                   const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : pattern.category === 'Superficial Analysis' ? 'text-purple-700 dark:text-purple-300' : 'text-pink-700 dark:text-pink-300';
                   
                   return (
                     <div key={idx} className="mt-4">

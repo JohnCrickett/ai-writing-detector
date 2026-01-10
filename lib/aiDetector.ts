@@ -14,9 +14,15 @@ import {
   generateUndueEmphasisHighlights,
   UNDUE_EMPHASIS_COLOR,
 } from './undueEmphasis';
+import {
+  detectSuperficialAnalysis,
+  generateSuperficialAnalysisHighlights,
+  SUPERFICIAL_ANALYSIS_COLOR,
+  type SuperficialAnalysisMatch,
+} from './superficialAnalysis';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -40,22 +46,32 @@ export function analyzeText(text: string): DetectionMetrics {
   const undueEmphasisMatches = detectUndueEmphasis(text);
   const undueEmphasisHighlights = generateUndueEmphasisHighlights(text, undueEmphasisMatches);
   
-  // Combine all highlights
-  const highlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights];
+  // Detect superficial analysis
+  const superficialAnalysisMatches = detectSuperficialAnalysis(text);
+  const superficialAnalysisHighlights = generateSuperficialAnalysisHighlights(text, superficialAnalysisMatches);
   
-  // Calculate score based on both detectors
+  // Combine all highlights
+  const highlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights];
+  
+  // Calculate score based on all detectors
   let score = 0;
   let aiVocabWordCount = 0;
   let undueEmphasisCount = 0;
+  let superficialAnalysisCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
-    score += Math.min(aiVocabularyMatches.length * 5, 50);
+    score += Math.min(aiVocabularyMatches.length * 5, 40);
   }
   
   if (undueEmphasisMatches.length > 0) {
     undueEmphasisCount = undueEmphasisMatches.reduce((sum, match) => sum + match.count, 0);
-    score += Math.min(undueEmphasisMatches.length * 3, 50);
+    score += Math.min(undueEmphasisMatches.length * 3, 30);
+  }
+  
+  if (superficialAnalysisMatches.length > 0) {
+    superficialAnalysisCount = superficialAnalysisMatches.reduce((sum, match) => sum + match.count, 0);
+    score += Math.min(superficialAnalysisMatches.length * 4, 30);
   }
 
   // Build patterns array
@@ -66,7 +82,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'AI Vocabulary',
       phrase: `${aiVocabularyMatches.length} distinct words (${aiVocabWordCount} total occurrences)`,
       count: aiVocabWordCount,
-      score: Math.min(aiVocabularyMatches.length * 5, 50),
+      score: Math.min(aiVocabularyMatches.length * 5, 40),
     });
   }
   
@@ -75,7 +91,16 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Undue Emphasis',
       phrase: `${undueEmphasisMatches.length} distinct phrases (${undueEmphasisCount} total occurrences)`,
       count: undueEmphasisCount,
-      score: Math.min(undueEmphasisMatches.length * 3, 50),
+      score: Math.min(undueEmphasisMatches.length * 3, 30),
+    });
+  }
+  
+  if (superficialAnalysisMatches.length > 0) {
+    patterns.push({
+      category: 'Superficial Analysis',
+      phrase: `${superficialAnalysisMatches.length} distinct patterns (${superficialAnalysisCount} total occurrences)`,
+      count: superficialAnalysisCount,
+      score: Math.min(superficialAnalysisMatches.length * 4, 30),
     });
   }
 
