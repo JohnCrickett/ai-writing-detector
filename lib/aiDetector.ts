@@ -65,7 +65,7 @@ export function analyzeText(text: string): DetectionMetrics {
 /**
  * Check for repetitive phrases and words (sign of AI)
  */
-function checkRepetition(text: string): number {
+export function checkRepetition(text: string): number {
   const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 3);
   const wordFreq = new Map<string, number>();
 
@@ -89,7 +89,7 @@ function checkRepetition(text: string): number {
 /**
  * Check for overly formal language patterns (common in AI)
  */
-function checkFormalTone(text: string): number {
+export function checkFormalTone(text: string): number {
   const formalPatterns = [
     /\b(furthermore|moreover|therefore|however|consequently|thus|hence)\b/gi,
     /\b(it is noteworthy|it is important to note|it should be noted)\b/gi,
@@ -114,7 +114,7 @@ function checkFormalTone(text: string): number {
 /**
  * Check sentence length variety (AI tends to be more uniform)
  */
-function checkSentenceVariety(text: string): number {
+export function checkSentenceVariety(text: string): number {
   const sentences = text
     .split(/[.!?]+/)
     .filter(s => s.trim().length > 0)
@@ -137,7 +137,7 @@ function checkSentenceVariety(text: string): number {
 /**
  * Check vocabulary complexity and diversity
  */
-function checkVocabularyComplexity(text: string): number {
+export function checkVocabularyComplexity(text: string): number {
   const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 0);
   const uniqueWords = new Set(words);
 
@@ -157,7 +157,7 @@ function checkVocabularyComplexity(text: string): number {
 /**
  * Check structural patterns (paragraphs, lists, etc)
  */
-function checkStructure(text: string): number {
+export function checkStructure(text: string): number {
   const lines = text.split('\n');
   const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0);
 
@@ -235,7 +235,7 @@ const AI_PATTERNS = {
 /**
  * Detect pattern-based AI writing markers
  */
-function detectPatterns(text: string): PatternMatch[] {
+export function detectPatterns(text: string): PatternMatch[] {
   const lowerText = text.toLowerCase();
   const detected: PatternMatch[] = [];
   const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
