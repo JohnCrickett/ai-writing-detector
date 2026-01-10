@@ -219,14 +219,14 @@ export function generateSuperficialAnalysisHighlights(
 ): Array<{
   start: number;
   end: number;
-  phrase: string;
+  factor: string;
   category: string;
   color: string;
 }> {
   const highlights: Array<{
     start: number;
     end: number;
-    phrase: string;
+    factor: string;
     category: string;
     color: string;
   }> = [];
@@ -242,7 +242,7 @@ export function generateSuperficialAnalysisHighlights(
         highlights.push({
           start: namedMatch.index,
           end: namedMatch.index + namedMatch[0].length,
-          phrase: match.phrase,
+          factor: match.phrase,
           category: 'Superficial Analysis',
           color: SUPERFICIAL_ANALYSIS_COLOR,
         });
@@ -268,7 +268,7 @@ export function generateSuperficialAnalysisHighlights(
           highlights.push({
             start: particleMatch.index,
             end: particleMatch.index + particleMatch[0].length,
-            phrase: match.phrase,
+            factor: match.phrase,
             category: 'Superficial Analysis',
             color: SUPERFICIAL_ANALYSIS_COLOR,
           });
@@ -283,7 +283,7 @@ export function generateSuperficialAnalysisHighlights(
         highlights.push({
           start: regexMatch.index,
           end: regexMatch.index + regexMatch[0].length,
-          phrase: match.phrase,
+          factor: match.phrase,
           category: 'Superficial Analysis',
           color: SUPERFICIAL_ANALYSIS_COLOR,
         });

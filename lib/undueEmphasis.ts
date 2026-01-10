@@ -132,14 +132,14 @@ export function generateUndueEmphasisHighlights(
 ): Array<{
   start: number;
   end: number;
-  phrase: string;
+  factor: string;
   category: string;
   color: string;
 }> {
   const highlights: Array<{
     start: number;
     end: number;
-    phrase: string;
+    factor: string;
     category: string;
     color: string;
   }> = [];
@@ -153,7 +153,7 @@ export function generateUndueEmphasisHighlights(
       highlights.push({
         start: matchResult.index,
         end: matchResult.index + matchResult[0].length,
-        phrase: match.phrase,
+        factor: match.phrase,
         category: 'Undue Emphasis',
         color: UNDUE_EMPHASIS_COLOR,
       });
