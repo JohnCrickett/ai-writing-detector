@@ -136,13 +136,23 @@ export function generateAIVocabularyHighlights(
     // Find all matches and create highlights
     let matchResult;
     while ((matchResult = pattern.exec(lowerText)) !== null) {
-      highlights.push({
-        start: matchResult.index,
-        end: matchResult.index + matchResult[0].length,
-        factor: word,
-        category: 'AI Vocabulary',
-        color: AI_VOCABULARY_COLOR,
-      });
+      const newStart = matchResult.index;
+      const newEnd = matchResult.index + matchResult[0].length;
+      
+      // Skip if this highlight overlaps with an existing one
+      const hasOverlap = highlights.some(existing => 
+        (newStart < existing.end && newEnd > existing.start)
+      );
+      
+      if (!hasOverlap) {
+        highlights.push({
+          start: newStart,
+          end: newEnd,
+          factor: word,
+          category: 'AI Vocabulary',
+          color: AI_VOCABULARY_COLOR,
+        });
+      }
     }
   }
 

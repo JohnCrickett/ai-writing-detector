@@ -144,13 +144,24 @@ export function generateNegativeParallelismHighlights(
         }
         lastIndex = matchResult.index;
 
-        highlights.push({
-          start: matchResult.index,
-          end: matchResult.index + matchResult[0].length,
-          factor: match.pattern,
-          category: 'Negative Parallelism',
-          color: NEGATIVE_PARALLELISM_COLOR,
-        });
+        const newStart = matchResult.index;
+        const newEnd = matchResult.index + matchResult[0].length;
+        
+        // Skip if this highlight overlaps with an existing one
+        const hasOverlap = highlights.some(existing => 
+          (newStart < existing.end && newEnd > existing.start)
+        );
+        
+        if (!hasOverlap) {
+          highlights.push({
+            start: newStart,
+            end: newEnd,
+            factor: match.pattern,
+            category: 'Negative Parallelism',
+            color: NEGATIVE_PARALLELISM_COLOR,
+          });
+        }
+        
         iterations++;
       }
     } catch (e) {

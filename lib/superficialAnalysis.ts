@@ -239,13 +239,23 @@ export function generateSuperficialAnalysisHighlights(
 
       let namedMatch;
       while ((namedMatch = namedPattern.exec(text)) !== null) {
-        highlights.push({
-          start: namedMatch.index,
-          end: namedMatch.index + namedMatch[0].length,
-          factor: match.phrase,
-          category: 'Superficial Analysis',
-          color: SUPERFICIAL_ANALYSIS_COLOR,
-        });
+        const newStart = namedMatch.index;
+        const newEnd = namedMatch.index + namedMatch[0].length;
+        
+        // Skip if this highlight overlaps with an existing one
+        const hasOverlap = highlights.some(existing => 
+          (newStart < existing.end && newEnd > existing.start)
+        );
+        
+        if (!hasOverlap) {
+          highlights.push({
+            start: newStart,
+            end: newEnd,
+            factor: match.phrase,
+            category: 'Superficial Analysis',
+            color: SUPERFICIAL_ANALYSIS_COLOR,
+          });
+        }
       }
     } else if (match.category === 'participle-phrase') {
       // Detect participle phrases at sentence/clause ends
@@ -265,13 +275,23 @@ export function generateSuperficialAnalysisHighlights(
         const wordEndPos = match.phrase.length;
         const afterWord = phrase.substring(wordEndPos).trim();
         if (afterWord.length > 2 && !afterWord.match(/^[a-z]\.?$/i)) {
-          highlights.push({
-            start: particleMatch.index,
-            end: particleMatch.index + particleMatch[0].length,
-            factor: match.phrase,
-            category: 'Superficial Analysis',
-            color: SUPERFICIAL_ANALYSIS_COLOR,
-          });
+          const newStart = particleMatch.index;
+          const newEnd = particleMatch.index + particleMatch[0].length;
+          
+          // Skip if this highlight overlaps with an existing one
+          const hasOverlap = highlights.some(existing => 
+            (newStart < existing.end && newEnd > existing.start)
+          );
+          
+          if (!hasOverlap) {
+            highlights.push({
+              start: newStart,
+              end: newEnd,
+              factor: match.phrase,
+              category: 'Superficial Analysis',
+              color: SUPERFICIAL_ANALYSIS_COLOR,
+            });
+          }
         }
       }
     } else {
@@ -280,13 +300,23 @@ export function generateSuperficialAnalysisHighlights(
       let regexMatch;
 
       while ((regexMatch = regex.exec(lowerText)) !== null) {
-        highlights.push({
-          start: regexMatch.index,
-          end: regexMatch.index + regexMatch[0].length,
-          factor: match.phrase,
-          category: 'Superficial Analysis',
-          color: SUPERFICIAL_ANALYSIS_COLOR,
-        });
+        const newStart = regexMatch.index;
+        const newEnd = regexMatch.index + regexMatch[0].length;
+        
+        // Skip if this highlight overlaps with an existing one
+        const hasOverlap = highlights.some(existing => 
+          (newStart < existing.end && newEnd > existing.start)
+        );
+        
+        if (!hasOverlap) {
+          highlights.push({
+            start: newStart,
+            end: newEnd,
+            factor: match.phrase,
+            category: 'Superficial Analysis',
+            color: SUPERFICIAL_ANALYSIS_COLOR,
+          });
+        }
       }
     }
   }

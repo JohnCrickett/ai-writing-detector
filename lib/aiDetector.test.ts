@@ -210,6 +210,38 @@ describe('Integrated AI Detection (analyzeText)', () => {
     });
   });
 
+  describe('Rule of Three Detection', () => {
+    it('should detect rule of three with adjectives', () => {
+      const text = 'This is an innovative, strategic, and comprehensive solution.';
+      const result = analyzeText(text);
+      
+      expect(result.patterns.some(p => p.category === 'Rule of Three')).toBe(true);
+      expect(result.score).toBeGreaterThan(0);
+    });
+
+    it('should detect rule of three with adjectives', () => {
+      const text = 'This is an innovative, strategic, and comprehensive solution.';
+      const result = analyzeText(text);
+      
+      expect(result.patterns.some(p => p.category === 'Rule of Three')).toBe(true);
+      expect(result.highlights.some(h => h.category === 'Rule of Three')).toBe(true);
+    });
+
+    it('should detect rule of three with verbs', () => {
+      const text = 'Companies must innovate, adapt, and evolve to survive.';
+      const result = analyzeText(text);
+      
+      expect(result.patterns.some(p => p.category === 'Rule of Three')).toBe(true);
+    });
+
+    it('should detect rule of three with gerunds', () => {
+      const text = 'The approach focuses on identifying, evaluating, and implementing solutions.';
+      const result = analyzeText(text);
+      
+      expect(result.patterns.some(p => p.category === 'Rule of Three')).toBe(true);
+    });
+  });
+
   describe('Combined Detection', () => {
     it('should detect both AI vocabulary and undue emphasis', () => {
       const text = 'Additionally, this pivotal initiative stands as a testament to crucial innovation that plays a vital role.';
@@ -239,6 +271,14 @@ describe('Integrated AI Detection (analyzeText)', () => {
       
       expect(vocabHighlights.length).toBeGreaterThan(0);
       expect(emphasisHighlights.length).toBeGreaterThan(0);
+    });
+
+    it('should detect multiple patterns including rule of three', () => {
+      const text = 'Additionally, our innovative, strategic, and comprehensive solution brings together strategists, engineers, and designers to deliver pivotal results.';
+      const result = analyzeText(text);
+      
+      expect(result.patterns.some(p => p.category === 'Rule of Three')).toBe(true);
+      expect(result.score).toBeGreaterThan(0);
     });
   });
 });

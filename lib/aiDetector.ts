@@ -38,9 +38,15 @@ import {
   NEGATIVE_PARALLELISM_COLOR,
   type NegativeParallelismMatch,
 } from './negativeParallelism';
+import {
+  detectRuleOfThree,
+  generateRuleOfThreeHighlights,
+  RULE_OF_THREE_COLOR,
+  type RuleOfThreeMatch,
+} from './ruleOfThree';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -80,8 +86,26 @@ export function analyzeText(text: string): DetectionMetrics {
   const negativeParallelismMatches = detectNegativeParallelism(text);
   const negativeParallelismHighlights = generateNegativeParallelismHighlights(text, negativeParallelismMatches);
   
+  // Detect rule of three
+  const ruleOfThreeMatches = detectRuleOfThree(text);
+  const ruleOfThreeHighlights = generateRuleOfThreeHighlights(text, ruleOfThreeMatches);
+  
   // Combine all highlights
-  const highlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights];
+  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights];
+  
+  // Sort by start position
+  allHighlights.sort((a, b) => a.start - b.start);
+  
+  // Remove overlapping highlights across detectors (keep first occurrence)
+  const highlights: typeof allHighlights = [];
+  for (const highlight of allHighlights) {
+    const hasOverlap = highlights.some(existing => 
+      (highlight.start < existing.end && highlight.end > existing.start)
+    );
+    if (!hasOverlap) {
+      highlights.push(highlight);
+    }
+  }
   
   // Calculate score based on all detectors
   let score = 0;
@@ -91,6 +115,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let promotionalLanguageCount = 0;
   let outlineConclusionCount = 0;
   let negativeParallelismCount = 0;
+  let ruleOfThreeCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -120,6 +145,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (negativeParallelismMatches.length > 0) {
     negativeParallelismCount = negativeParallelismMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(negativeParallelismMatches.length * 4, 25);
+  }
+
+  if (ruleOfThreeMatches.length > 0) {
+    ruleOfThreeCount = ruleOfThreeMatches.reduce((sum, match) => sum + match.count, 0);
+    score += Math.min(ruleOfThreeMatches.length * 5, 30);
   }
 
   // Build patterns array
@@ -176,6 +206,15 @@ export function analyzeText(text: string): DetectionMetrics {
       phrase: `${negativeParallelismMatches.length} distinct pattern(s) (${negativeParallelismCount} total occurrences)`,
       count: negativeParallelismCount,
       score: Math.min(negativeParallelismMatches.length * 4, 25),
+    });
+  }
+
+  if (ruleOfThreeMatches.length > 0) {
+    patterns.push({
+      category: 'Rule of Three',
+      phrase: `${ruleOfThreeMatches.length} distinct pattern(s) (${ruleOfThreeCount} total occurrences)`,
+      count: ruleOfThreeCount,
+      score: Math.min(ruleOfThreeMatches.length * 5, 30),
     });
   }
 
