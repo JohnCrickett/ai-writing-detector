@@ -26,9 +26,15 @@ import {
   PROMOTIONAL_LANGUAGE_COLOR,
   type PromotionalLanguageMatch,
 } from './promotionalLanguage';
+import {
+  detectOutlineConclusions,
+  generateOutlineConclusionHighlights,
+  OUTLINE_CONCLUSION_COLOR,
+  type OutlineConclusionMatch,
+} from './outlineConclusion';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -60,8 +66,12 @@ export function analyzeText(text: string): DetectionMetrics {
   const promotionalLanguageMatches = detectPromotionalLanguage(text);
   const promotionalLanguageHighlights = generatePromotionalLanguageHighlights(text, promotionalLanguageMatches);
   
+  // Detect outline conclusions
+  const outlineConclusionMatches = detectOutlineConclusions(text);
+  const outlineConclusionHighlights = generateOutlineConclusionHighlights(text, outlineConclusionMatches);
+  
   // Combine all highlights
-  const highlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights];
+  const highlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights];
   
   // Calculate score based on all detectors
   let score = 0;
@@ -69,6 +79,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let undueEmphasisCount = 0;
   let superficialAnalysisCount = 0;
   let promotionalLanguageCount = 0;
+  let outlineConclusionCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -88,6 +99,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (promotionalLanguageMatches.length > 0) {
     promotionalLanguageCount = promotionalLanguageMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(promotionalLanguageMatches.length * 3, 25);
+  }
+  
+  if (outlineConclusionMatches.length > 0) {
+    outlineConclusionCount = outlineConclusionMatches.length;
+    score += Math.min(outlineConclusionMatches.length * 8, 30);
   }
 
   // Build patterns array
@@ -126,6 +142,15 @@ export function analyzeText(text: string): DetectionMetrics {
       phrase: `${promotionalLanguageMatches.length} distinct phrases (${promotionalLanguageCount} total occurrences)`,
       count: promotionalLanguageCount,
       score: Math.min(promotionalLanguageMatches.length * 3, 25),
+    });
+  }
+
+  if (outlineConclusionMatches.length > 0) {
+    patterns.push({
+      category: 'Outline Conclusion Pattern',
+      phrase: `${outlineConclusionMatches.length} instance(s) of rigid "despite-challenges-positive" formula`,
+      count: outlineConclusionCount,
+      score: Math.min(outlineConclusionMatches.length * 8, 30),
     });
   }
 
