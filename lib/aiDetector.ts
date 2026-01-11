@@ -62,9 +62,15 @@ import {
   ELEGANT_VARIATION_COLOR,
   type ElegantVariationMatch,
 } from './elegantVariation';
+import {
+  detectFalseRanges,
+  generateFalseRangesHighlights,
+  FALSE_RANGES_COLOR,
+  type FalseRangeMatch,
+} from './falseRanges';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -120,8 +126,12 @@ export function analyzeText(text: string): DetectionMetrics {
   const elegantVariationMatches = detectElegantVariation(text);
   const elegantVariationHighlights = generateElegantVariationHighlights(text, elegantVariationMatches);
   
+  // Detect false ranges
+  const falseRangesMatches = detectFalseRanges(text);
+  const falseRangesHighlights = generateFalseRangesHighlights(text, falseRangesMatches);
+  
   // Combine all highlights
-  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights];
+  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
   // Sort by start position
   allHighlights.sort((a, b) => a.start - b.start);
@@ -149,6 +159,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let vagueAttributionCount = 0;
   let overgeneralizationCount = 0;
   let elegantVariationCount = 0;
+  let falseRangesCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -198,6 +209,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (elegantVariationMatches.length > 0) {
     elegantVariationCount = elegantVariationMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(elegantVariationMatches.length * 4, 25);
+  }
+
+  if (falseRangesMatches.length > 0) {
+    falseRangesCount = falseRangesMatches.length;
+    score += Math.min(falseRangesMatches.length * 6, 30);
   }
 
   // Clamp final score to 100
@@ -296,6 +312,15 @@ export function analyzeText(text: string): DetectionMetrics {
       phrase: `${elegantVariationMatches.length} distinct pattern(s) (${elegantVariationCount} total occurrences)`,
       count: elegantVariationCount,
       score: Math.round(Math.min(elegantVariationMatches.length * 4, 25) * scoreFactor),
+    });
+  }
+
+  if (falseRangesMatches.length > 0) {
+    patterns.push({
+      category: 'False Ranges',
+      phrase: `${falseRangesMatches.length} instance(s) of "from...to" constructions without coherent scales`,
+      count: falseRangesCount,
+      score: Math.round(Math.min(falseRangesMatches.length * 6, 30) * scoreFactor),
     });
   }
 

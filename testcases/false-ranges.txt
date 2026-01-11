@@ -1,0 +1,50 @@
+FALSE RANGES - Examples from LLM writing
+
+=== Example 1: Cosmic Journey (Multiple false ranges) ===
+Our journey through the universe has taken us from the singularity of the Big Bang to the grand cosmic web, from the birth and death of stars that forge the elements of life, to the enigmatic dance of dark matter and dark energy that shape its destiny.
+
+ANALYSIS:
+- "from the singularity of the Big Bang to the grand cosmic web" - Two unrelated astronomical concepts, no coherent scale
+- "from the birth and death of stars to dark matter and dark energy" - Mixing stellar physics with cosmological phenomena, endpoints unrelated
+
+=== Example 2: Intelligence and Creativity ===
+Intelligence and Creativity: From problem-solving and tool-making to scientific discovery, artistic expression, and technological innovation, human intelligence is characterized by its adaptability and capacity for novel solutions.
+
+ANALYSIS:
+- "From problem-solving and tool-making to scientific discovery, artistic expression, and technological innovation"
+- Multiple items in both endpoints (compound phrases with "and")
+- Disparate domains listed as if defining a continuous scale
+- No meaningful middle ground exists between these activities
+
+=== Example 3: Scientific Discovery ===
+Continued Scientific Discovery: The quest to understand the universe, life, and ourselves will continue to drive scientific breakthroughs, from fundamental physics to medicine and neuroscience.
+
+ANALYSIS:
+- "from fundamental physics to medicine and neuroscience"
+- Attempts to connect unrelated knowledge domains
+- Medicine and neuroscience aren't points on a scale from physics
+- Rhetorical device to suggest comprehensive coverage
+
+=== Example 4: TRUE RANGE (for contrast) ===
+Our research covers a wide range of phenomena, from quantum mechanics to classical physics.
+
+ANALYSIS:
+- Valid range: both endpoints are within same domain (physics)
+- Can identify middle ground (statistical mechanics bridges quantum and classical)
+- Represents actual scientific spectrum
+
+=== Example 5: TRUE RANGE - Qualitative ===
+The severity of symptoms ranges from mild to severe.
+
+ANALYSIS:
+- Valid qualitative range
+- Clear spectrum of intensity
+- Coherent single scale
+
+=== Example 6: TRUE MERISM ===
+The project requires effort from start to finish.
+
+ANALYSIS:
+- Valid merism/idiom
+- "start to finish" = the whole project
+- Established figurative usage
