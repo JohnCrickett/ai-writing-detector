@@ -56,9 +56,15 @@ import {
   OVERGENERALIZATION_COLOR,
   type OvergeneralizationMatch,
 } from './overgeneralization';
+import {
+  detectElegantVariation,
+  generateElegantVariationHighlights,
+  ELEGANT_VARIATION_COLOR,
+  type ElegantVariationMatch,
+} from './elegantVariation';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -110,8 +116,12 @@ export function analyzeText(text: string): DetectionMetrics {
   const overgeneralizationMatches = detectOvergeneralization(text);
   const overgeneralizationHighlights = generateOvergeneralizationHighlights(text, overgeneralizationMatches);
   
+  // Detect elegant variation
+  const elegantVariationMatches = detectElegantVariation(text);
+  const elegantVariationHighlights = generateElegantVariationHighlights(text, elegantVariationMatches);
+  
   // Combine all highlights
-  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights];
+  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights];
   
   // Sort by start position
   allHighlights.sort((a, b) => a.start - b.start);
@@ -138,6 +148,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let ruleOfThreeCount = 0;
   let vagueAttributionCount = 0;
   let overgeneralizationCount = 0;
+  let elegantVariationCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -182,6 +193,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (overgeneralizationMatches.length > 0) {
     overgeneralizationCount = overgeneralizationMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(overgeneralizationMatches.length * 3, 25);
+  }
+
+  if (elegantVariationMatches.length > 0) {
+    elegantVariationCount = elegantVariationMatches.reduce((sum, match) => sum + match.count, 0);
+    score += Math.min(elegantVariationMatches.length * 4, 25);
   }
 
   // Clamp final score to 100
@@ -271,6 +287,15 @@ export function analyzeText(text: string): DetectionMetrics {
       phrase: `${overgeneralizationMatches.length} distinct pattern(s) (${overgeneralizationCount} total occurrences)`,
       count: overgeneralizationCount,
       score: Math.round(Math.min(overgeneralizationMatches.length * 3, 25) * scoreFactor),
+    });
+  }
+
+  if (elegantVariationMatches.length > 0) {
+    patterns.push({
+      category: 'Elegant Variation',
+      phrase: `${elegantVariationMatches.length} distinct pattern(s) (${elegantVariationCount} total occurrences)`,
+      count: elegantVariationCount,
+      score: Math.round(Math.min(elegantVariationMatches.length * 4, 25) * scoreFactor),
     });
   }
 
