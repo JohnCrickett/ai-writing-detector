@@ -88,9 +88,14 @@ import {
   PARAGRAPH_COHERENCE_COLOR,
   type ParagraphCoherenceMatch,
 } from './paragraphCoherence';
+import {
+  detectPassiveVoiceFrequency,
+  PASSIVE_VOICE_FREQUENCY_COLOR,
+  type PassiveVoiceFrequencyResult,
+} from './passiveVoiceFrequency';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -103,6 +108,7 @@ interface DetectionMetrics {
     readingGradeLevel: number;
     namedEntityDensity: number;
     paragraphCoherence: number;
+    passiveVoiceFrequency: number;
   };
   patterns: PatternMatch[];
   highlights: TextHighlight[];
@@ -165,7 +171,10 @@ export function analyzeText(text: string): DetectionMetrics {
   // Detect paragraph coherence
   const paragraphCoherenceMatches = detectParagraphCoherence(text);
   
-  // Combine all highlights (note: namedEntityDensityMatches and paragraphCoherenceMatches are used for scoring/factors only, not for text highlights)
+  // Detect passive voice frequency
+  const passiveVoiceFrequencyResult = detectPassiveVoiceFrequency(text);
+  
+  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, and passiveVoiceFrequencyResult are used for scoring/factors only, not for text highlights)
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
   // Sort by start position
@@ -199,6 +208,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let lexicalDiversityScore = 0;
   let namedEntityDensityCount = 0;
   let paragraphCoherenceCount = 0;
+  let passiveVoiceFrequencyScore = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -273,6 +283,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (paragraphCoherenceMatches.length > 0) {
     paragraphCoherenceCount = paragraphCoherenceMatches.length;
     score += Math.min(paragraphCoherenceMatches.length * 5, 30);
+  }
+
+  if (passiveVoiceFrequencyResult.isAIPotential) {
+    passiveVoiceFrequencyScore = passiveVoiceFrequencyResult.score;
+    score += passiveVoiceFrequencyScore;
   }
 
   // Clamp final score to 100
@@ -414,6 +429,13 @@ export function analyzeText(text: string): DetectionMetrics {
     paragraphCoherenceFactor = Math.round(Math.min(paragraphCoherenceMatches.length * 5, 30) * scoreFactor);
   }
 
+  // Calculate passive voice frequency factor (0-100)
+  let passiveVoiceFrequencyFactor = 0;
+  if (passiveVoiceFrequencyResult.isAIPotential) {
+    // Scale passive voice frequency contribution to 0-100
+    passiveVoiceFrequencyFactor = Math.round(passiveVoiceFrequencyResult.score * scoreFactor);
+  }
+
   return {
     score: finalScore,
     factors: {
@@ -425,6 +447,7 @@ export function analyzeText(text: string): DetectionMetrics {
       readingGradeLevel: fleschKincaidResult.gradeLevel,
       namedEntityDensity: namedEntityDensityFactor,
       paragraphCoherence: paragraphCoherenceFactor,
+      passiveVoiceFrequency: passiveVoiceFrequencyFactor,
     },
     patterns,
     highlights,

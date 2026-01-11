@@ -106,6 +106,10 @@ export default function Home() {
                 <li>• Sentence variety analysis</li>
                 <li>• Vocabulary diversity metrics</li>
                 <li>• Structural pattern recognition</li>
+                <li>• Passive voice frequency analysis</li>
+                <li>• Named entity density</li>
+                <li>• Paragraph coherence</li>
+                <li>• Reading grade level</li>
               </ul>
             </div>
 
