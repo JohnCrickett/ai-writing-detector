@@ -116,9 +116,15 @@ export default function Home() {
               <ul className="text-slate-600 dark:text-slate-400 space-y-2 text-sm">
                 <li>• AI vocabulary markers</li>
                 <li>• Undue emphasis patterns</li>
+                <li>• Superficial analysis</li>
                 <li>• Promotional language</li>
-                <li>• Negative parallelism constructions</li>
-                <li>• And 3 more categories</li>
+                <li>• Outline conclusion patterns</li>
+                <li>• Negative parallelism</li>
+                <li>• Rule of three</li>
+                <li>• Vague attributions</li>
+                <li>• Overgeneralization</li>
+                <li>• Elegant variation</li>
+                <li>• False ranges</li>
               </ul>
             </div>
           </div>

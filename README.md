@@ -17,11 +17,17 @@ The detector combines two complementary analysis approaches:
 
 ### Pattern Detection
 The tool identifies common patterns found in AI-generated text:
-- **AI vocabulary markers**: Specific words and phrases commonly used by AI language models
-- **Undue emphasis patterns**: Excessive use of emphasizing words or phrases
-- **Promotional language**: Patterns typical of marketing or persuasive AI outputs
-- **Didactic disclaimers**: Common disclaimer phrases often found in AI responses
-- **And 4 more detection categories**
+- **AI vocabulary markers**: Specific words and phrases commonly used by AI language models (e.g., "delve into", "navigate", "robust")
+- **Undue emphasis patterns**: Excessive use of emphasizing words, superlatives, and emphatic punctuation
+- **Superficial analysis**: Vague significance claims and generic attributions lacking specificity
+- **Promotional language**: Marketing superlatives and persuasive AI phrasing (e.g., "game-changer", "transformative")
+- **Outline conclusion patterns**: Formulaic "Despite challenges... but also positive" structures
+- **Negative parallelism**: Rigid structures like "not only... but also" and overly formal parallel constructions
+- **Rule of three**: Repetitive triple-adjective/noun/verb patterns and rhetorical tripling
+- **Vague attributions**: Appeals to "experts" or "industry reports" without concrete sources
+- **Overgeneralization**: Claims that frame limited information as universal or exhaustive
+- **Elegant variation**: Repetitive synonym substitution where the same entity has multiple equivalent references
+- **False ranges**: "From...to" constructions without coherent scales or logical connections
 
 Results are presented as a probability score along with detailed breakdowns of detected factors, helping users understand which characteristics suggest AI generation.
 
