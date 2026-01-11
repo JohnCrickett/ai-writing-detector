@@ -50,9 +50,15 @@ import {
   VAGUE_ATTRIBUTION_COLOR,
   type VagueAttributionMatch,
 } from './vagueAttributions';
+import {
+  detectOvergeneralization,
+  generateOvergeneralizationHighlights,
+  OVERGENERALIZATION_COLOR,
+  type OvergeneralizationMatch,
+} from './overgeneralization';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -100,8 +106,12 @@ export function analyzeText(text: string): DetectionMetrics {
   const vagueAttributionMatches = detectVagueAttributions(text);
   const vagueAttributionHighlights = generateVagueAttributionHighlights(text, vagueAttributionMatches);
   
+  // Detect overgeneralization
+  const overgeneralizationMatches = detectOvergeneralization(text);
+  const overgeneralizationHighlights = generateOvergeneralizationHighlights(text, overgeneralizationMatches);
+  
   // Combine all highlights
-  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights];
+  const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights];
   
   // Sort by start position
   allHighlights.sort((a, b) => a.start - b.start);
@@ -127,6 +137,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let negativeParallelismCount = 0;
   let ruleOfThreeCount = 0;
   let vagueAttributionCount = 0;
+  let overgeneralizationCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -168,6 +179,17 @@ export function analyzeText(text: string): DetectionMetrics {
     score += Math.min(vagueAttributionMatches.length * 4, 30);
   }
 
+  if (overgeneralizationMatches.length > 0) {
+    overgeneralizationCount = overgeneralizationMatches.reduce((sum, match) => sum + match.count, 0);
+    score += Math.min(overgeneralizationMatches.length * 3, 25);
+  }
+
+  // Clamp final score to 100
+  const finalScore = Math.min(score, 100);
+  
+  // Normalize pattern scores proportionally if total exceeds 100
+  const scoreFactor = score > 0 ? finalScore / score : 1;
+
   // Build patterns array
   const patterns: PatternMatch[] = [];
   
@@ -176,7 +198,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'AI Vocabulary',
       phrase: `${aiVocabularyMatches.length} distinct words (${aiVocabWordCount} total occurrences)`,
       count: aiVocabWordCount,
-      score: Math.min(aiVocabularyMatches.length * 5, 40),
+      score: Math.round(Math.min(aiVocabularyMatches.length * 5, 40) * scoreFactor),
     });
   }
   
@@ -185,7 +207,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Undue Emphasis',
       phrase: `${undueEmphasisMatches.length} distinct phrases (${undueEmphasisCount} total occurrences)`,
       count: undueEmphasisCount,
-      score: Math.min(undueEmphasisMatches.length * 3, 30),
+      score: Math.round(Math.min(undueEmphasisMatches.length * 3, 30) * scoreFactor),
     });
   }
   
@@ -194,7 +216,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Superficial Analysis',
       phrase: `${superficialAnalysisMatches.length} distinct patterns (${superficialAnalysisCount} total occurrences)`,
       count: superficialAnalysisCount,
-      score: Math.min(superficialAnalysisMatches.length * 4, 30),
+      score: Math.round(Math.min(superficialAnalysisMatches.length * 4, 30) * scoreFactor),
     });
   }
 
@@ -203,7 +225,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Promotional Language',
       phrase: `${promotionalLanguageMatches.length} distinct phrases (${promotionalLanguageCount} total occurrences)`,
       count: promotionalLanguageCount,
-      score: Math.min(promotionalLanguageMatches.length * 3, 25),
+      score: Math.round(Math.min(promotionalLanguageMatches.length * 3, 25) * scoreFactor),
     });
   }
 
@@ -212,7 +234,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Outline Conclusion Pattern',
       phrase: `${outlineConclusionMatches.length} instance(s) of rigid "despite-challenges-positive" formula`,
       count: outlineConclusionCount,
-      score: Math.min(outlineConclusionMatches.length * 8, 30),
+      score: Math.round(Math.min(outlineConclusionMatches.length * 8, 30) * scoreFactor),
     });
   }
 
@@ -221,7 +243,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Negative Parallelism',
       phrase: `${negativeParallelismMatches.length} distinct pattern(s) (${negativeParallelismCount} total occurrences)`,
       count: negativeParallelismCount,
-      score: Math.min(negativeParallelismMatches.length * 4, 25),
+      score: Math.round(Math.min(negativeParallelismMatches.length * 4, 25) * scoreFactor),
     });
   }
 
@@ -230,7 +252,7 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Rule of Three',
       phrase: `${ruleOfThreeMatches.length} distinct pattern(s) (${ruleOfThreeCount} total occurrences)`,
       count: ruleOfThreeCount,
-      score: Math.min(ruleOfThreeMatches.length * 5, 30),
+      score: Math.round(Math.min(ruleOfThreeMatches.length * 5, 30) * scoreFactor),
     });
   }
 
@@ -239,17 +261,26 @@ export function analyzeText(text: string): DetectionMetrics {
       category: 'Vague Attributions',
       phrase: `${vagueAttributionMatches.length} distinct phrase(s) (${vagueAttributionCount} total occurrences)`,
       count: vagueAttributionCount,
-      score: Math.min(vagueAttributionMatches.length * 4, 30),
+      score: Math.round(Math.min(vagueAttributionMatches.length * 4, 30) * scoreFactor),
+    });
+  }
+
+  if (overgeneralizationMatches.length > 0) {
+    patterns.push({
+      category: 'Overgeneralization',
+      phrase: `${overgeneralizationMatches.length} distinct pattern(s) (${overgeneralizationCount} total occurrences)`,
+      count: overgeneralizationCount,
+      score: Math.round(Math.min(overgeneralizationMatches.length * 3, 25) * scoreFactor),
     });
   }
 
   return {
-    score: Math.min(score, 100),
+    score: finalScore,
     factors: {
       repetition: 0,
       formalTone: 0,
       sentenceVariety: 0,
-      vocabulary: score,
+      vocabulary: finalScore,
       structure: 0,
     },
     patterns,

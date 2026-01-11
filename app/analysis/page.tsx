@@ -68,7 +68,7 @@ function HighlightedText({
           <span
             key={idx}
             style={{
-              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : segment.category?.includes('Superficial') ? '#8b5cf6' : segment.category?.includes('Promotional') ? '#14b8a6' : segment.category?.includes('Outline') ? '#ef4444' : segment.category?.includes('Negative Parallelism') ? '#f97316' : segment.category?.includes('Vague Attribution') ? '#6366f1' : '#ec4899',
+              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : segment.category?.includes('Superficial') ? '#8b5cf6' : segment.category?.includes('Promotional') ? '#14b8a6' : segment.category?.includes('Outline') ? '#ef4444' : segment.category?.includes('Negative Parallelism') ? '#f97316' : segment.category?.includes('Vague Attribution') ? '#6366f1' : segment.category?.includes('Overgeneralization') ? '#06b6d4' : '#ec4899',
               color: '#1e293b',
             }}
             className="font-semibold rounded px-1"
@@ -238,7 +238,7 @@ export default function AnalysisPage() {
               <p className="mb-3 font-semibold">Detected factors:</p>
               <div className="flex flex-wrap gap-2">
                 {Array.from(new Set(data.highlights.map((h) => h.category))).map((category) => {
-                   const bgColor = category?.includes('Vocabulary') ? 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200' : category?.includes('Superficial') ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' : category?.includes('Promotional') ? 'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200' : category?.includes('Outline') ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : category?.includes('Negative Parallelism') ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' : category?.includes('Vague Attribution') ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200' : 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200';
+                   const bgColor = category?.includes('Vocabulary') ? 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200' : category?.includes('Superficial') ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' : category?.includes('Promotional') ? 'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200' : category?.includes('Outline') ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : category?.includes('Negative Parallelism') ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' : category?.includes('Vague Attribution') ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200' : category?.includes('Overgeneralization') ? 'bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200' : 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200';
                   return (
                     <span
                       key={category}
@@ -331,9 +331,9 @@ export default function AnalysisPage() {
               <>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 mt-6 border-t border-slate-200 dark:border-slate-700 pt-6">Pattern Detection</h4>
                 {data.patterns.map((pattern, idx) => {
-                    const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : pattern.category === 'Superficial Analysis' ? '#8b5cf6' : pattern.category === 'Promotional Language' ? '#14b8a6' : pattern.category === 'Outline Conclusion Pattern' ? '#ef4444' : pattern.category === 'Negative Parallelism' ? '#f97316' : pattern.category === 'Vague Attributions' ? '#6366f1' : '#ec4899';
+                    const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : pattern.category === 'Superficial Analysis' ? '#8b5cf6' : pattern.category === 'Promotional Language' ? '#14b8a6' : pattern.category === 'Outline Conclusion Pattern' ? '#ef4444' : pattern.category === 'Negative Parallelism' ? '#f97316' : pattern.category === 'Vague Attributions' ? '#6366f1' : pattern.category === 'Overgeneralization' ? '#06b6d4' : '#ec4899';
                     
-                    const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : pattern.category === 'Superficial Analysis' ? 'text-purple-700 dark:text-purple-300' : pattern.category === 'Promotional Language' ? 'text-teal-700 dark:text-teal-300' : pattern.category === 'Outline Conclusion Pattern' ? 'text-red-700 dark:text-red-300' : pattern.category === 'Negative Parallelism' ? 'text-orange-700 dark:text-orange-300' : pattern.category === 'Vague Attributions' ? 'text-indigo-700 dark:text-indigo-300' : 'text-pink-700 dark:text-pink-300';
+                    const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : pattern.category === 'Superficial Analysis' ? 'text-purple-700 dark:text-purple-300' : pattern.category === 'Promotional Language' ? 'text-teal-700 dark:text-teal-300' : pattern.category === 'Outline Conclusion Pattern' ? 'text-red-700 dark:text-red-300' : pattern.category === 'Negative Parallelism' ? 'text-orange-700 dark:text-orange-300' : pattern.category === 'Vague Attributions' ? 'text-indigo-700 dark:text-indigo-300' : pattern.category === 'Overgeneralization' ? 'text-cyan-700 dark:text-cyan-300' : 'text-pink-700 dark:text-pink-300';
                   
                   return (
                     <div key={idx} className="mt-4">
