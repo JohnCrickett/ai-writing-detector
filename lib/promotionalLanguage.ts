@@ -189,7 +189,7 @@ function createRegexPattern(phrase: string): RegExp {
 /**
  * Color for promotional language highlights
  */
-export const PROMOTIONAL_LANGUAGE_COLOR = '#14b8a6'; // teal-500
+export const PROMOTIONAL_LANGUAGE_COLOR = '#f43f5e'; // rose-500
 
 /**
  * Generate highlights for promotional language matches in text
