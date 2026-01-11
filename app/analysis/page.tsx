@@ -68,7 +68,7 @@ function HighlightedText({
           <span
             key={idx}
             style={{
-              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : segment.category?.includes('Superficial') ? '#8b5cf6' : segment.category?.includes('Promotional') ? '#f43f5e' : segment.category?.includes('Outline') ? '#ef4444' : segment.category?.includes('Negative Parallelism') ? '#f97316' : segment.category?.includes('Vague Attribution') ? '#6366f1' : segment.category?.includes('Overgeneralization') ? '#06b6d4' : segment.category?.includes('Elegant Variation') ? '#10b981' : segment.category?.includes('False Ranges') ? '#eab308' : '#ec4899',
+              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : segment.category?.includes('Superficial') ? '#8b5cf6' : segment.category?.includes('Promotional') ? '#f43f5e' : segment.category?.includes('Outline') ? '#ef4444' : segment.category?.includes('Negative Parallelism') ? '#f97316' : segment.category?.includes('Vague Attribution') ? '#6366f1' : segment.category?.includes('Overgeneralization') ? '#06b6d4' : segment.category?.includes('Elegant Variation') ? '#10b981' : segment.category?.includes('False Ranges') ? '#eab308' : segment.category?.includes('Rare Word') ? '#8b5cf6' : '#ec4899',
               color: '#1e293b',
             }}
             className="font-semibold rounded px-1"
@@ -97,6 +97,10 @@ interface AnalysisData {
     structure: number;
     readingGradeLevel: number;
     namedEntityDensity: number;
+    paragraphCoherence: number;
+    passiveVoiceFrequency: number;
+    punctuationPatterns: number;
+    rareWordUsage: number;
   };
   patterns?: Array<{
     category: string;
@@ -402,6 +406,22 @@ export default function AnalysisPage() {
                    </div>
                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                      High semicolon/em-dash density and low ellipsis usage suggests formal AI writing
+                   </div>
+                 </div>
+
+                 <div className="mt-4">
+                   <div className="flex justify-between items-center mb-2">
+                     <span className="text-slate-600 dark:text-slate-400">Rare Word Usage</span>
+                     <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.rareWordUsage)}%</span>
+                   </div>
+                   <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                     <div
+                       className="h-full bg-violet-600 rounded-full"
+                       style={{ width: `${data.factors.rareWordUsage}%` }}
+                     />
+                   </div>
+                   <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                     Excessive rare words (&gt;12% frequency) suggest artificial writing. Humans typically use rare words at 3-8% frequency.
                    </div>
                  </div>
                  </>
