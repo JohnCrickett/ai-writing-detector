@@ -78,9 +78,19 @@ import {
   LEXICAL_DIVERSITY_COLOR,
   type LexicalDiversityResult,
 } from './lexicalDiversity';
+import {
+  detectNamedEntityDensity,
+  NAMED_ENTITY_DENSITY_COLOR,
+  type NamedEntityMatch,
+} from './namedEntityDensity';
+import {
+  detectParagraphCoherence,
+  PARAGRAPH_COHERENCE_COLOR,
+  type ParagraphCoherenceMatch,
+} from './paragraphCoherence';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -91,6 +101,8 @@ interface DetectionMetrics {
     vocabulary: number;
     structure: number;
     readingGradeLevel: number;
+    namedEntityDensity: number;
+    paragraphCoherence: number;
   };
   patterns: PatternMatch[];
   highlights: TextHighlight[];
@@ -147,7 +159,13 @@ export function analyzeText(text: string): DetectionMetrics {
   // Detect lexical diversity
   const lexicalDiversityResult = detectLexicalDiversity(text);
   
-  // Combine all highlights
+  // Detect named entity density
+  const namedEntityDensityMatches = detectNamedEntityDensity(text);
+  
+  // Detect paragraph coherence
+  const paragraphCoherenceMatches = detectParagraphCoherence(text);
+  
+  // Combine all highlights (note: namedEntityDensityMatches and paragraphCoherenceMatches are used for scoring/factors only, not for text highlights)
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
   // Sort by start position
@@ -179,6 +197,8 @@ export function analyzeText(text: string): DetectionMetrics {
   let falseRangesCount = 0;
   let fleschKincaidScore = 0;
   let lexicalDiversityScore = 0;
+  let namedEntityDensityCount = 0;
+  let paragraphCoherenceCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -243,6 +263,16 @@ export function analyzeText(text: string): DetectionMetrics {
   if (lexicalDiversityResult.isAIPotential) {
     lexicalDiversityScore = Math.round(lexicalDiversityResult.score);
     score += lexicalDiversityScore;
+  }
+
+  if (namedEntityDensityMatches.length > 0) {
+    namedEntityDensityCount = namedEntityDensityMatches.reduce((sum, match) => sum + match.count, 0);
+    score += Math.min(namedEntityDensityMatches.length * 6, 35);
+  }
+
+  if (paragraphCoherenceMatches.length > 0) {
+    paragraphCoherenceCount = paragraphCoherenceMatches.length;
+    score += Math.min(paragraphCoherenceMatches.length * 5, 30);
   }
 
   // Clamp final score to 100
@@ -353,6 +383,8 @@ export function analyzeText(text: string): DetectionMetrics {
     });
   }
 
+  // Note: paragraphCoherenceMatches is used for scoring/factors only, not for pattern detection (like namedEntityDensity)
+
   // Calculate vocabulary diversity percentage (0-100)
   // TTR ranges from 0 to 1, with 0.35-0.65 being normal, so we scale it as:
   // - TTR < 0.35 gets high score (low diversity = AI)
@@ -368,6 +400,20 @@ export function analyzeText(text: string): DetectionMetrics {
   }
   // Normal range (0.35-0.65) gets 0
 
+  // Calculate named entity density factor (0-100)
+  let namedEntityDensityFactor = 0;
+  if (namedEntityDensityMatches.length > 0) {
+    // Scale named entity density contribution to 0-100
+    namedEntityDensityFactor = Math.round(Math.min(namedEntityDensityMatches.length * 6, 35) * scoreFactor);
+  }
+
+  // Calculate paragraph coherence factor (0-100)
+  let paragraphCoherenceFactor = 0;
+  if (paragraphCoherenceMatches.length > 0) {
+    // Scale paragraph coherence contribution to 0-100
+    paragraphCoherenceFactor = Math.round(Math.min(paragraphCoherenceMatches.length * 5, 30) * scoreFactor);
+  }
+
   return {
     score: finalScore,
     factors: {
@@ -377,6 +423,8 @@ export function analyzeText(text: string): DetectionMetrics {
       vocabulary: vocabularyDiversityFactor,
       structure: 0,
       readingGradeLevel: fleschKincaidResult.gradeLevel,
+      namedEntityDensity: namedEntityDensityFactor,
+      paragraphCoherence: paragraphCoherenceFactor,
     },
     patterns,
     highlights,

@@ -96,6 +96,7 @@ interface AnalysisData {
     vocabulary: number;
     structure: number;
     readingGradeLevel: number;
+    namedEntityDensity: number;
   };
   patterns?: Array<{
     category: string;
@@ -238,7 +239,7 @@ export default function AnalysisPage() {
             <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
               <p className="mb-3 font-semibold">Detected factors:</p>
               <div className="flex flex-wrap gap-2">
-                {Array.from(new Set(data.highlights.map((h) => h.category))).map((category) => {
+                {Array.from(new Set(data.highlights.map((h) => h.category).filter((c) => c !== 'Named Entity Density'))).map((category) => {
                    const bgColor = category?.includes('Vocabulary') ? 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200' : category?.includes('Superficial') ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' : category?.includes('Promotional') ? 'bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200' : category?.includes('Outline') ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : category?.includes('Negative Parallelism') ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' : category?.includes('Vague Attribution') ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200' : category?.includes('Overgeneralization') ? 'bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200' : category?.includes('Elegant Variation') ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : category?.includes('False Ranges') ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' : 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200';
                   return (
                     <span
@@ -327,20 +328,52 @@ export default function AnalysisPage() {
                 </div>
 
                 <div className="mt-4">
+                   <div className="flex justify-between items-center mb-2">
+                     <span className="text-slate-600 dark:text-slate-400">Reading Grade Level</span>
+                     <span className="text-slate-900 dark:text-white font-semibold">{data.factors.readingGradeLevel?.toFixed(1) || 'N/A'}</span>
+                   </div>
+                   <div className="text-sm text-slate-500 dark:text-slate-400">
+                     {data.factors.readingGradeLevel > 14 
+                       ? '⚠️ College/graduate level suggests artificial complexity' 
+                       : data.factors.readingGradeLevel >= 9 
+                       ? 'High school level' 
+                       : 'Elementary/middle school level'}
+                   </div>
+                 </div>
+
+                <div className="mt-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-600 dark:text-slate-400">Reading Grade Level</span>
-                    <span className="text-slate-900 dark:text-white font-semibold">{data.factors.readingGradeLevel?.toFixed(1) || 'N/A'}</span>
+                    <span className="text-slate-600 dark:text-slate-400">Named Entity Density</span>
+                    <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.namedEntityDensity)}%</span>
                   </div>
-                  <div className="text-sm text-slate-500 dark:text-slate-400">
-                    {data.factors.readingGradeLevel > 14 
-                      ? '⚠️ College/graduate level suggests artificial complexity' 
-                      : data.factors.readingGradeLevel >= 9 
-                      ? 'High school level' 
-                      : 'Elementary/middle school level'}
+                  <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                    <div
+                      className="h-full bg-amber-600 rounded-full"
+                      style={{ width: `${data.factors.namedEntityDensity}%` }}
+                    />
+                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    High entity density with vague attributions or low density with confident claims may indicate hallucination risk
                   </div>
                 </div>
-              </>
-            )}
+
+                <div className="mt-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-slate-600 dark:text-slate-400">Paragraph Coherence (Low = Human)</span>
+                    <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.paragraphCoherence)}%</span>
+                  </div>
+                  <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                    <div
+                      className="h-full bg-pink-600 rounded-full"
+                      style={{ width: `${data.factors.paragraphCoherence}%` }}
+                    />
+                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    Overly tight logical coherence between sentences suggests artificial writing
+                  </div>
+                </div>
+                </>
+                )}
 
             {data.patterns && data.patterns.length > 0 && (
               <>
