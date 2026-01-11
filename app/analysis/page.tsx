@@ -95,6 +95,7 @@ interface AnalysisData {
     sentenceVariety: number;
     vocabulary: number;
     structure: number;
+    readingGradeLevel: number;
   };
   patterns?: Array<{
     category: string;
@@ -301,7 +302,7 @@ export default function AnalysisPage() {
 
                 <div className="mt-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-600 dark:text-slate-400">Vocabulary Diversity</span>
+                    <span className="text-slate-600 dark:text-slate-400">Lexical Diversity</span>
                     <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.vocabulary)}%</span>
                   </div>
                   <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">

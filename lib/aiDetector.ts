@@ -73,9 +73,14 @@ import {
   FLESCH_KINCAID_COLOR,
   type FleschKincaidResult,
 } from './fleschKincaid';
+import {
+  detectLexicalDiversity,
+  LEXICAL_DIVERSITY_COLOR,
+  type LexicalDiversityResult,
+} from './lexicalDiversity';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -139,6 +144,9 @@ export function analyzeText(text: string): DetectionMetrics {
   // Detect Flesch-Kincaid grade level
   const fleschKincaidResult = detectFleschKincaidGradeLevel(text);
   
+  // Detect lexical diversity
+  const lexicalDiversityResult = detectLexicalDiversity(text);
+  
   // Combine all highlights
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
@@ -170,6 +178,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let elegantVariationCount = 0;
   let falseRangesCount = 0;
   let fleschKincaidScore = 0;
+  let lexicalDiversityScore = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -229,6 +238,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (fleschKincaidResult.isAIPotential) {
     fleschKincaidScore = Math.round(fleschKincaidResult.score);
     score += fleschKincaidScore;
+  }
+
+  if (lexicalDiversityResult.isAIPotential) {
+    lexicalDiversityScore = Math.round(lexicalDiversityResult.score);
+    score += lexicalDiversityScore;
   }
 
   // Clamp final score to 100
@@ -339,13 +353,28 @@ export function analyzeText(text: string): DetectionMetrics {
     });
   }
 
+  // Calculate vocabulary diversity percentage (0-100)
+  // TTR ranges from 0 to 1, with 0.35-0.65 being normal, so we scale it as:
+  // - TTR < 0.35 gets high score (low diversity = AI)
+  // - TTR 0.35-0.65 gets low score (normal = human)
+  // - TTR > 0.65 gets high score (high diversity = AI)
+  let vocabularyDiversityFactor = 0;
+  if (lexicalDiversityResult.typeTokenRatio < 0.35) {
+    // Low diversity: scale deficit from 0.35
+    vocabularyDiversityFactor = Math.round(((0.35 - lexicalDiversityResult.typeTokenRatio) / 0.35) * 100);
+  } else if (lexicalDiversityResult.typeTokenRatio > 0.65) {
+    // High diversity: scale exceedance from 0.65
+    vocabularyDiversityFactor = Math.round(((lexicalDiversityResult.typeTokenRatio - 0.65) / 0.35) * 100);
+  }
+  // Normal range (0.35-0.65) gets 0
+
   return {
     score: finalScore,
     factors: {
       repetition: 0,
       formalTone: 0,
       sentenceVariety: 0,
-      vocabulary: finalScore,
+      vocabulary: vocabularyDiversityFactor,
       structure: 0,
       readingGradeLevel: fleschKincaidResult.gradeLevel,
     },
