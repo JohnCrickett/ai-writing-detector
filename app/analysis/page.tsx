@@ -388,6 +388,22 @@ export default function AnalysisPage() {
                      Passive voice over 15% frequency suggests AI composition (humans use 5-10%)
                    </div>
                  </div>
+
+                 <div className="mt-4">
+                   <div className="flex justify-between items-center mb-2">
+                     <span className="text-slate-600 dark:text-slate-400">Punctuation Patterns</span>
+                     <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.punctuationPatterns)}%</span>
+                   </div>
+                   <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                     <div
+                       className="h-full bg-pink-600 rounded-full"
+                       style={{ width: `${data.factors.punctuationPatterns}%` }}
+                     />
+                   </div>
+                   <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                     High semicolon/em-dash density and low ellipsis usage suggests formal AI writing
+                   </div>
+                 </div>
                  </>
                  )}
 

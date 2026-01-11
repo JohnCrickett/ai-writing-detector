@@ -280,5 +280,13 @@ describe('Integrated AI Detection (analyzeText)', () => {
       expect(result.patterns.some(p => p.category === 'Rule of Three')).toBe(true);
       expect(result.score).toBeGreaterThan(0);
     });
+
+    it('should report punctuation patterns in linguistic factors', () => {
+      const text = 'The research indicates three key findings; first, the results demonstrate significance. Additionally, the implications warrant further study—a fact that bears consideration. Finally, conclusions emerge clearly.';
+      const result = analyzeText(text);
+      
+      expect(result.factors.punctuationPatterns).toBeDefined();
+      expect(result.factors.punctuationPatterns).toBeGreaterThan(0);
+    });
   });
 });

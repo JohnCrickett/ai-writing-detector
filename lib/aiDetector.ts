@@ -93,9 +93,13 @@ import {
   PASSIVE_VOICE_FREQUENCY_COLOR,
   type PassiveVoiceFrequencyResult,
 } from './passiveVoiceFrequency';
+import {
+  detectPunctuationPatterns,
+  PUNCTUATION_PATTERNS_COLOR,
+} from './punctuationPatterns';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR, PUNCTUATION_PATTERNS_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -109,6 +113,7 @@ interface DetectionMetrics {
     namedEntityDensity: number;
     paragraphCoherence: number;
     passiveVoiceFrequency: number;
+    punctuationPatterns: number;
   };
   patterns: PatternMatch[];
   highlights: TextHighlight[];
@@ -174,7 +179,10 @@ export function analyzeText(text: string): DetectionMetrics {
   // Detect passive voice frequency
   const passiveVoiceFrequencyResult = detectPassiveVoiceFrequency(text);
   
-  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, and passiveVoiceFrequencyResult are used for scoring/factors only, not for text highlights)
+  // Detect punctuation patterns
+  const punctuationPatternMatches = detectPunctuationPatterns(text);
+  
+  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, passiveVoiceFrequencyResult, and punctuationPatternMatches are used for scoring/factors only, not for text highlights)
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
   // Sort by start position
@@ -209,6 +217,8 @@ export function analyzeText(text: string): DetectionMetrics {
   let namedEntityDensityCount = 0;
   let paragraphCoherenceCount = 0;
   let passiveVoiceFrequencyScore = 0;
+  let punctuationPatternScore = 0;
+  let punctuationPatternCount = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -288,6 +298,13 @@ export function analyzeText(text: string): DetectionMetrics {
   if (passiveVoiceFrequencyResult.isAIPotential) {
     passiveVoiceFrequencyScore = passiveVoiceFrequencyResult.score;
     score += passiveVoiceFrequencyScore;
+  }
+
+  if (punctuationPatternMatches.length > 0) {
+    const aiSignals = punctuationPatternMatches.filter(m => m.score > 0);
+    punctuationPatternCount = aiSignals.length;
+    punctuationPatternScore = Math.min(aiSignals.reduce((sum, match) => sum + match.score, 0), 40);
+    score += punctuationPatternScore;
   }
 
   // Clamp final score to 100
@@ -398,7 +415,7 @@ export function analyzeText(text: string): DetectionMetrics {
     });
   }
 
-  // Note: paragraphCoherenceMatches is used for scoring/factors only, not for pattern detection (like namedEntityDensity)
+  // Note: paragraphCoherenceMatches and punctuationPatternMatches are used for scoring/factors only, not for pattern detection (like namedEntityDensity)
 
   // Calculate vocabulary diversity percentage (0-100)
   // TTR ranges from 0 to 1, with 0.35-0.65 being normal, so we scale it as:
@@ -436,6 +453,16 @@ export function analyzeText(text: string): DetectionMetrics {
     passiveVoiceFrequencyFactor = Math.round(passiveVoiceFrequencyResult.score * scoreFactor);
   }
 
+  // Calculate punctuation patterns factor (0-100)
+  let punctuationPatternsFactor = 0;
+  if (punctuationPatternMatches.length > 0) {
+    const aiSignals = punctuationPatternMatches.filter(m => m.score > 0);
+    if (aiSignals.length > 0) {
+      // Scale punctuation patterns contribution to 0-100
+      punctuationPatternsFactor = Math.round(Math.min(aiSignals.reduce((sum, m) => sum + m.score, 0), 40) * scoreFactor);
+    }
+  }
+
   return {
     score: finalScore,
     factors: {
@@ -448,6 +475,7 @@ export function analyzeText(text: string): DetectionMetrics {
       namedEntityDensity: namedEntityDensityFactor,
       paragraphCoherence: paragraphCoherenceFactor,
       passiveVoiceFrequency: passiveVoiceFrequencyFactor,
+      punctuationPatterns: punctuationPatternsFactor,
     },
     patterns,
     highlights,
