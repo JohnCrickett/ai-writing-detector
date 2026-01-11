@@ -36,7 +36,7 @@ export function detectFalseRanges(text: string): FalseRangeMatch[] {
   // First, handle comma-separated "from...to" constructions
   const fromToPattern = /from\s+([^,\.;:\n]+)\s+to\s+([^,\.;:\n]+)(?=[,\.;:\n]|$)/gi;
   
-  let match;
+  let match: RegExpExecArray | null;
   while ((match = fromToPattern.exec(text)) !== null) {
     const fullMatch = match[0];
     const startPhrase = match[1].trim();
@@ -59,14 +59,15 @@ export function detectFalseRanges(text: string): FalseRangeMatch[] {
   // Also try "ranging from...to" pattern
   const rangePattern = /ranging\s+from\s+([^,\.;:\n]+)\s+to\s+([^,\.;:\n]+)(?=[,\.;:\n]|$)/gi;
   
-  match = null;
-  while ((match = rangePattern.exec(text)) !== null) {
-    const fullMatch = match[0];
-    const startPhrase = match[1].trim();
-    const endPhrase = match[2].trim();
+  let match2: RegExpExecArray | null;
+  while ((match2 = rangePattern.exec(text)) !== null) {
+    const m = match2 as RegExpExecArray;
+    const fullMatch = m[0];
+    const startPhrase = m[1].trim();
+    const endPhrase = m[2].trim();
     
     // Skip if we already detected this
-    const isDuplicate = matches.some(m => m.startIndex === match.index);
+    const isDuplicate = matches.some(existing => existing.startIndex === m.index);
     if (isDuplicate) continue;
     
     // Check if this is a false range
@@ -77,8 +78,8 @@ export function detectFalseRanges(text: string): FalseRangeMatch[] {
         text: fullMatch,
         reason: falseRangeResult.reason,
         isRhetorical: falseRangeResult.isRhetorical,
-        startIndex: match.index,
-        endIndex: match.index + fullMatch.length,
+        startIndex: m.index,
+        endIndex: m.index + fullMatch.length,
       });
     }
   }
