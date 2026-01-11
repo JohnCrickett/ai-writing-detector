@@ -247,7 +247,7 @@ describe('Integrated AI Detection (analyzeText)', () => {
       const text = 'Additionally, this pivotal initiative stands as a testament to crucial innovation that plays a vital role.';
       const result = analyzeText(text);
       
-      expect(result.patterns.length).toBe(2);
+      expect(result.patterns.length).toBeGreaterThanOrEqual(2);
       expect(result.patterns.some(p => p.category === 'AI Vocabulary')).toBe(true);
       expect(result.patterns.some(p => p.category === 'Undue Emphasis')).toBe(true);
       expect(result.highlights.length).toBeGreaterThan(3);

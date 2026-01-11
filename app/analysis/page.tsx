@@ -324,6 +324,20 @@ export default function AnalysisPage() {
                     />
                   </div>
                 </div>
+
+                <div className="mt-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-slate-600 dark:text-slate-400">Reading Grade Level</span>
+                    <span className="text-slate-900 dark:text-white font-semibold">{data.factors.readingGradeLevel?.toFixed(1) || 'N/A'}</span>
+                  </div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400">
+                    {data.factors.readingGradeLevel > 14 
+                      ? '⚠️ College/graduate level suggests artificial complexity' 
+                      : data.factors.readingGradeLevel >= 9 
+                      ? 'High school level' 
+                      : 'Elementary/middle school level'}
+                  </div>
+                </div>
               </>
             )}
 

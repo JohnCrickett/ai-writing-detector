@@ -68,9 +68,14 @@ import {
   FALSE_RANGES_COLOR,
   type FalseRangeMatch,
 } from './falseRanges';
+import {
+  detectFleschKincaidGradeLevel,
+  FLESCH_KINCAID_COLOR,
+  type FleschKincaidResult,
+} from './fleschKincaid';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -80,6 +85,7 @@ interface DetectionMetrics {
     sentenceVariety: number;
     vocabulary: number;
     structure: number;
+    readingGradeLevel: number;
   };
   patterns: PatternMatch[];
   highlights: TextHighlight[];
@@ -130,6 +136,9 @@ export function analyzeText(text: string): DetectionMetrics {
   const falseRangesMatches = detectFalseRanges(text);
   const falseRangesHighlights = generateFalseRangesHighlights(text, falseRangesMatches);
   
+  // Detect Flesch-Kincaid grade level
+  const fleschKincaidResult = detectFleschKincaidGradeLevel(text);
+  
   // Combine all highlights
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
@@ -160,6 +169,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let overgeneralizationCount = 0;
   let elegantVariationCount = 0;
   let falseRangesCount = 0;
+  let fleschKincaidScore = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -214,6 +224,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (falseRangesMatches.length > 0) {
     falseRangesCount = falseRangesMatches.length;
     score += Math.min(falseRangesMatches.length * 6, 30);
+  }
+
+  if (fleschKincaidResult.isAIPotential) {
+    fleschKincaidScore = Math.round(fleschKincaidResult.score);
+    score += fleschKincaidScore;
   }
 
   // Clamp final score to 100
@@ -332,6 +347,7 @@ export function analyzeText(text: string): DetectionMetrics {
       sentenceVariety: 0,
       vocabulary: finalScore,
       structure: 0,
+      readingGradeLevel: fleschKincaidResult.gradeLevel,
     },
     patterns,
     highlights,
