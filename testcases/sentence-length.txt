@@ -1,0 +1,17 @@
+Test Case 1: The "Machine Monotone" (Target: High AI Score)
+This text mimics the common AI tendency to stay within a 15–20 word "safe zone." Each sentence is grammatically perfect but rhythmically identical.
+
+"Artificial intelligence models are trained on massive datasets to generate human-like text for various applications. These systems analyze patterns in language to predict the most likely next word in a given sequence. Large language models have become increasingly sophisticated in their ability to handle complex creative writing tasks. Users can interact with these tools to streamline their workflows and improve their overall productivity levels significantly."
+
+
+Test Case 2: The "Human Pulse" (Target: Low AI Score)
+This text uses "bursty" writing. It features a mix of fragments, medium sentences, and one long, complex thought.
+
+"It’s here. AI is changing everything we know about writing, but it still lacks that certain spark of human soul. You can feel it. The rhythm of a person’s thoughts doesn't follow a predictable mathematical pattern; it meanders, jumps, and sometimes just stops. Boom. That's the difference."
+
+
+
+Test Case 3: The "Academic Hybrid" (The Stress Test)
+This is a "trick" case. It is written by a human but uses a formal, academic tone. Sometimes AI detectors produce false positives on academic writing because formal prose often trends toward consistently long sentences.
+
+"The experimental results indicate a significant correlation between atmospheric pressure and the rate of chemical sublimation within the chamber. Researchers observed that as the temperature increased, the molecular stability began to degrade at a predictable and linear pace. Subsequent trials confirmed that these variables must be tightly controlled to ensure the integrity of the final data set."

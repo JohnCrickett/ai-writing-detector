@@ -102,9 +102,14 @@ import {
   RARE_WORD_USAGE_COLOR,
   type RareWordMatch,
 } from './rareWordUsage';
+import {
+  detectSentenceLengthVariation,
+  SENTENCE_LENGTH_VARIATION_COLOR,
+  type SentenceLengthVariationResult,
+} from './sentenceLengthVariation';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR, PUNCTUATION_PATTERNS_COLOR, RARE_WORD_USAGE_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR, PUNCTUATION_PATTERNS_COLOR, RARE_WORD_USAGE_COLOR, SENTENCE_LENGTH_VARIATION_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -120,6 +125,7 @@ interface DetectionMetrics {
     passiveVoiceFrequency: number;
     punctuationPatterns: number;
     rareWordUsage: number;
+    sentenceLengthVariation: number;
   };
   patterns: PatternMatch[];
   highlights: TextHighlight[];
@@ -190,8 +196,11 @@ export function analyzeText(text: string): DetectionMetrics {
 
   // Detect rare word usage
   const rareWordUsageMatches = detectRareWordUsage(text);
+
+  // Detect sentence length variation
+  const sentenceLengthVariationResult = detectSentenceLengthVariation(text);
   
-  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, passiveVoiceFrequencyResult, punctuationPatternMatches, and rareWordUsageMatches are used for scoring/factors only, not for text highlights)
+  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, passiveVoiceFrequencyResult, punctuationPatternMatches, rareWordUsageMatches, and sentenceLengthVariationResult are used for scoring/factors only, not for text highlights)
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
   // Sort by start position
@@ -229,6 +238,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let punctuationPatternScore = 0;
   let punctuationPatternCount = 0;
   let rareWordUsageScore = 0;
+  let sentenceLengthVariationScore = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -320,6 +330,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (rareWordUsageMatches.length > 0) {
     rareWordUsageScore = Math.round(rareWordUsageMatches[0].score);
     score += rareWordUsageScore;
+  }
+
+  if (sentenceLengthVariationResult.isAIPotential) {
+    sentenceLengthVariationScore = sentenceLengthVariationResult.score;
+    score += sentenceLengthVariationScore;
   }
 
   // Clamp final score to 100
@@ -485,6 +500,13 @@ export function analyzeText(text: string): DetectionMetrics {
     rareWordUsageFactor = Math.round(rareWordUsageMatches[0].score * scoreFactor);
   }
 
+  // Calculate sentence length variation factor (0-100)
+  let sentenceLengthVariationFactor = 0;
+  if (sentenceLengthVariationResult.isAIPotential) {
+    // Scale sentence length variation contribution to 0-100
+    sentenceLengthVariationFactor = Math.round(sentenceLengthVariationResult.score * scoreFactor);
+  }
+
   return {
     score: finalScore,
     factors: {
@@ -499,6 +521,7 @@ export function analyzeText(text: string): DetectionMetrics {
       passiveVoiceFrequency: passiveVoiceFrequencyFactor,
       punctuationPatterns: punctuationPatternsFactor,
       rareWordUsage: rareWordUsageFactor,
+      sentenceLengthVariation: sentenceLengthVariationFactor,
     },
     patterns,
     highlights,

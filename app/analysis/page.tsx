@@ -101,6 +101,7 @@ interface AnalysisData {
     passiveVoiceFrequency: number;
     punctuationPatterns: number;
     rareWordUsage: number;
+    sentenceLengthVariation: number;
   };
   patterns?: Array<{
     category: string;
@@ -422,6 +423,22 @@ export default function AnalysisPage() {
                    </div>
                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                      Excessive rare words (&gt;12% frequency) suggest artificial writing. Humans typically use rare words at 3-8% frequency.
+                   </div>
+                 </div>
+
+                 <div className="mt-4">
+                   <div className="flex justify-between items-center mb-2">
+                     <span className="text-slate-600 dark:text-slate-400">Sentence Length Variation (High = AI Signal)</span>
+                     <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.sentenceLengthVariation)}%</span>
+                   </div>
+                   <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                     <div
+                       className="h-full bg-orange-600 rounded-full"
+                       style={{ width: `${data.factors.sentenceLengthVariation}%` }}
+                     />
+                   </div>
+                   <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                     AI tends to produce sentences of similar length. Natural human writing varies between short and long sentences.
                    </div>
                  </div>
                  </>
