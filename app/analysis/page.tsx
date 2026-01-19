@@ -90,11 +90,7 @@ interface AnalysisData {
   aiScore: number;
   timestamp: string;
   factors?: {
-    repetition: number;
-    formalTone: number;
-    sentenceVariety: number;
     vocabulary: number;
-    structure: number;
     readingGradeLevel: number;
     namedEntityDensity: number;
     paragraphCoherence: number;
@@ -269,45 +265,6 @@ export default function AnalysisPage() {
             {data.factors && (
               <>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 mt-4">Linguistic Factors</h4>
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-600 dark:text-slate-400">Word Repetition</span>
-                    <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.repetition)}%</span>
-                  </div>
-                  <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
-                    <div
-                      className="h-full bg-blue-600 rounded-full"
-                      style={{ width: `${data.factors.repetition}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-600 dark:text-slate-400">Formal Tone</span>
-                    <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.formalTone)}%</span>
-                  </div>
-                  <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
-                    <div
-                      className="h-full bg-blue-600 rounded-full"
-                      style={{ width: `${data.factors.formalTone}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-600 dark:text-slate-400">Sentence Variety (Low = AI)</span>
-                    <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.sentenceVariety)}%</span>
-                  </div>
-                  <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
-                    <div
-                      className="h-full bg-blue-600 rounded-full"
-                      style={{ width: `${data.factors.sentenceVariety}%` }}
-                    />
-                  </div>
-                </div>
-
                 <div className="mt-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-slate-600 dark:text-slate-400">Lexical Diversity</span>
@@ -319,24 +276,14 @@ export default function AnalysisPage() {
                       style={{ width: `${data.factors.vocabulary}%` }}
                     />
                   </div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-slate-600 dark:text-slate-400">Structural Patterns</span>
-                    <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.structure)}%</span>
-                  </div>
-                  <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
-                    <div
-                      className="h-full bg-blue-600 rounded-full"
-                      style={{ width: `${data.factors.structure}%` }}
-                    />
+                  <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    Deviation from natural vocabulary range suggests artificial writing. Both unusually low and high diversity can indicate AI generation.
                   </div>
                 </div>
 
                 <div className="mt-4">
                    <div className="flex justify-between items-center mb-2">
-                     <span className="text-slate-600 dark:text-slate-400">Reading Grade Level</span>
+                      <span className="text-slate-600 dark:text-slate-400">Reading Grade Level</span>
                      <span className="text-slate-900 dark:text-white font-semibold">{data.factors.readingGradeLevel?.toFixed(1) || 'N/A'}</span>
                    </div>
                    <div className="text-sm text-slate-500 dark:text-slate-400">

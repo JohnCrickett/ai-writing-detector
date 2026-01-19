@@ -9,11 +9,16 @@ An open-source tool that detects AI-generated text by analyzing linguistic patte
 The detector combines two complementary analysis approaches:
 
 ### Linguistic Factors
-- **Word repetition patterns**: Detects unusual frequency patterns in word usage
-- **Formal tone detection**: Identifies overly formal or stilted language structure
-- **Sentence variety analysis**: Evaluates the diversity of sentence lengths and structures
 - **Vocabulary diversity metrics**: Measures the range and sophistication of vocabulary used
-- **Structural pattern recognition**: Analyzes paragraph and content organization patterns
+- **Passive voice frequency analysis**: Detects overuse of passive constructions
+- **Named entity density**: Analyzes the frequency of proper nouns and entities
+- **Paragraph coherence**: Measures semantic consistency between sentences
+- **Reading grade level**: Calculates text complexity using Flesch-Kincaid metrics
+- **Sentence length variation**: Evaluates uniformity of sentence lengths
+- **Transition word density**: Detects excessive use of formal discourse markers
+- **Word frequency distribution**: Analyzes deviation from natural word frequency patterns
+- **Punctuation patterns**: Identifies formal punctuation overuse (semicolons, em-dashes)
+- **Rare word usage**: Detects excessive use of uncommon vocabulary
 
 ### Pattern Detection
 The tool identifies common patterns found in AI-generated text:

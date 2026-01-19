@@ -571,11 +571,7 @@ export function analyzeText(text: string): DetectionMetrics {
   return {
     score: finalScore,
     factors: {
-      repetition: 0,
-      formalTone: 0,
-      sentenceVariety: 0,
       vocabulary: vocabularyDiversityFactor,
-      structure: 0,
       readingGradeLevel: fleschKincaidResult.gradeLevel,
       namedEntityDensity: namedEntityDensityFactor,
       paragraphCoherence: paragraphCoherenceFactor,
@@ -589,34 +585,6 @@ export function analyzeText(text: string): DetectionMetrics {
     patterns,
     highlights,
   };
-}
-
-export function checkRepetition(text: string): number {
-  return 0;
-}
-
-export function checkFormalTone(text: string): number {
-  return 0;
-}
-
-export function checkSentenceVariety(text: string): number {
-  return 0;
-}
-
-export function checkVocabularyComplexity(text: string): number {
-  return 0;
-}
-
-export function checkStructure(text: string): number {
-  return 0;
-}
-
-export function detectPatterns(text: string): PatternMatch[] {
-  return [];
-}
-
-export function detectHighlights(text: string): TextHighlight[] {
-  return [];
 }
 
 

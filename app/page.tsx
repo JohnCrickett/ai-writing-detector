@@ -101,17 +101,16 @@ export default function Home() {
                 Linguistic Factors
               </h3>
               <ul className="text-slate-600 dark:text-slate-400 space-y-2 text-sm">
-                <li>• Word repetition patterns</li>
-                <li>• Formal tone detection</li>
-                <li>• Sentence variety analysis</li>
                 <li>• Vocabulary diversity metrics</li>
-                <li>• Structural pattern recognition</li>
                 <li>• Passive voice frequency analysis</li>
                 <li>• Named entity density</li>
                 <li>• Paragraph coherence</li>
                 <li>• Reading grade level</li>
+                <li>• Sentence length variation</li>
                 <li>• Transition word density</li>
-                <li>• Word frequency distribution (Zipf's Law)</li>
+                <li>• Word frequency distribution</li>
+                <li>• Punctuation patterns</li>
+                <li>• Rare word usage</li>
               </ul>
             </div>
 
