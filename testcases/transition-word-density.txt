@@ -1,0 +1,54 @@
+Test Suite: Transition Word Density
+1. High Density (Clear AI Pattern)
+This text uses a formal transition at the start of almost every sentence, typical of "Instructional AI" styles.
+
+Input Text: "Firstly, the implementation of renewable energy is essential for sustainability. Furthermore, solar power provides a consistent source of electricity in many regions. Additionally, wind turbines offer a high return on investment over time. Consequently, governments should prioritize these technologies immediately."
+
+Sentences: 4
+
+Transitions: 4 (Firstly, Furthermore, Additionally, Consequently)
+
+Density: 1.0
+
+Expected Result: FLAGGED (High AI Signal)
+
+2. Natural Flow (Human Prose)
+This text relies on implicit logic and simple sentence structure.
+
+Input Text: "The team met at 9:00 AM to discuss the budget. We realized quickly that the numbers didn't add up. Someone suggested cutting the marketing spend, but that felt risky. We decided to sleep on it and meet again tomorrow."
+
+Sentences: 4
+
+Transitions: 0 (Formal)
+
+Density: 0.0
+
+Expected Result: PASS (Human Signal)
+
+3. Threshold Case (The "Borderline" AI)
+This test targets your 0.4 threshold exactly.
+
+Input Text: "The experiment failed due to temperature fluctuations. Moreover, the sensors were not calibrated correctly. We need to reset the equipment before the next run. Therefore, we will delay the second phase until Monday. This will give us time to verify the settings."
+
+Sentences: 5
+
+Transitions: 2 (Moreover, Therefore)
+
+Density: 0.4
+
+Expected Result: THRESHOLD (May or may not flag depending on whether your logic is > or >=)
+
+4. Conversational Connectors (Non-Formal)
+This tests the detector’s ability to distinguish between "Formal Discourse Markers" and "Conversational Connectors" (e.g., But, So, And).
+
+Input Text: "I went to the store to get some milk. But they were all out. So I walked over to the deli instead. And luckily, they had exactly what I needed."
+
+Sentences: 4
+
+Transitions (Formal): 0
+
+Transitions (Conversational): 3 (But, So, And)
+
+Density: 0.0 (Formal)
+
+Expected Result: PASS (Should not flag if the detector correctly identifies these as informal).

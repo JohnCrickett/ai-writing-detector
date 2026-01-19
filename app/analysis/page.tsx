@@ -102,6 +102,7 @@ interface AnalysisData {
     punctuationPatterns: number;
     rareWordUsage: number;
     sentenceLengthVariation: number;
+    transitionWordDensity: number;
   };
   patterns?: Array<{
     category: string;
@@ -439,6 +440,22 @@ export default function AnalysisPage() {
                    </div>
                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                      AI tends to produce sentences of similar length. Natural human writing varies between short and long sentences.
+                   </div>
+                 </div>
+
+                 <div className="mt-4">
+                   <div className="flex justify-between items-center mb-2">
+                     <span className="text-slate-600 dark:text-slate-400">Transition Word Density</span>
+                     <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.transitionWordDensity)}%</span>
+                   </div>
+                   <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                     <div
+                       className="h-full bg-pink-600 rounded-full"
+                       style={{ width: `${data.factors.transitionWordDensity}%` }}
+                     />
+                   </div>
+                   <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                     High density of formal discourse markers (furthermore, moreover, consequently) suggests artificial writing. Humans typically use formal transitions in fewer than 20% of sentences.
                    </div>
                  </div>
                  </>

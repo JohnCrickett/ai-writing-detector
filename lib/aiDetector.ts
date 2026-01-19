@@ -107,9 +107,14 @@ import {
   SENTENCE_LENGTH_VARIATION_COLOR,
   type SentenceLengthVariationResult,
 } from './sentenceLengthVariation';
+import {
+  detectTransitionWordDensity,
+  TRANSITION_WORD_DENSITY_COLOR,
+  type TransitionWordMatch,
+} from './transitionWordDensity';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR, PUNCTUATION_PATTERNS_COLOR, RARE_WORD_USAGE_COLOR, SENTENCE_LENGTH_VARIATION_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR, PUNCTUATION_PATTERNS_COLOR, RARE_WORD_USAGE_COLOR, SENTENCE_LENGTH_VARIATION_COLOR, TRANSITION_WORD_DENSITY_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -126,6 +131,7 @@ interface DetectionMetrics {
     punctuationPatterns: number;
     rareWordUsage: number;
     sentenceLengthVariation: number;
+    transitionWordDensity: number;
   };
   patterns: PatternMatch[];
   highlights: TextHighlight[];
@@ -199,8 +205,11 @@ export function analyzeText(text: string): DetectionMetrics {
 
   // Detect sentence length variation
   const sentenceLengthVariationResult = detectSentenceLengthVariation(text);
+
+  // Detect transition word density
+  const transitionWordDensityMatches = detectTransitionWordDensity(text);
   
-  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, passiveVoiceFrequencyResult, punctuationPatternMatches, rareWordUsageMatches, and sentenceLengthVariationResult are used for scoring/factors only, not for text highlights)
+  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, passiveVoiceFrequencyResult, punctuationPatternMatches, rareWordUsageMatches, sentenceLengthVariationResult, and transitionWordDensityMatches are used for scoring/factors only, not for text highlights)
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
   // Sort by start position
@@ -239,6 +248,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let punctuationPatternCount = 0;
   let rareWordUsageScore = 0;
   let sentenceLengthVariationScore = 0;
+  let transitionWordDensityScore = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -335,6 +345,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (sentenceLengthVariationResult.isAIPotential) {
     sentenceLengthVariationScore = sentenceLengthVariationResult.score;
     score += sentenceLengthVariationScore;
+  }
+
+  if (transitionWordDensityMatches.length > 0) {
+    transitionWordDensityScore = Math.round(transitionWordDensityMatches[0].score);
+    score += transitionWordDensityScore;
   }
 
   // Clamp final score to 100
@@ -445,7 +460,7 @@ export function analyzeText(text: string): DetectionMetrics {
     });
   }
 
-  // Note: paragraphCoherenceMatches and punctuationPatternMatches are used for scoring/factors only, not for pattern detection (like namedEntityDensity)
+  // Note: paragraphCoherenceMatches, punctuationPatternMatches, rareWordUsageMatches, sentenceLengthVariationResult, and transitionWordDensityMatches are used for scoring/factors only, not for pattern detection (like namedEntityDensity)
 
   // Calculate vocabulary diversity percentage (0-100)
   // TTR ranges from 0 to 1, with 0.35-0.65 being normal, so we scale it as:
@@ -507,6 +522,13 @@ export function analyzeText(text: string): DetectionMetrics {
     sentenceLengthVariationFactor = Math.round(sentenceLengthVariationResult.score * scoreFactor);
   }
 
+  // Calculate transition word density factor (0-100)
+  let transitionWordDensityFactor = 0;
+  if (transitionWordDensityMatches.length > 0) {
+    // Scale transition word density contribution to 0-100
+    transitionWordDensityFactor = Math.round(transitionWordDensityMatches[0].score * scoreFactor);
+  }
+
   return {
     score: finalScore,
     factors: {
@@ -522,6 +544,7 @@ export function analyzeText(text: string): DetectionMetrics {
       punctuationPatterns: punctuationPatternsFactor,
       rareWordUsage: rareWordUsageFactor,
       sentenceLengthVariation: sentenceLengthVariationFactor,
+      transitionWordDensity: transitionWordDensityFactor,
     },
     patterns,
     highlights,

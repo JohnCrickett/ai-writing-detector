@@ -110,6 +110,7 @@ export default function Home() {
                 <li>• Named entity density</li>
                 <li>• Paragraph coherence</li>
                 <li>• Reading grade level</li>
+                <li>• Transition word density</li>
               </ul>
             </div>
 
