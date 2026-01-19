@@ -1,0 +1,15 @@
+Non AI Text
+
+The old oak tree stood tall against the darkening sky, its branches reaching out like skeletal
+fingers grasping for the last remnants of twilight. Silence draped over the valley, broken
+only by the occasional rustle of dry leaves dancing across the frozen ground. It was a
+lonely place, yet it felt alive with the memories of a thousand winters past. Every
+creak of the wood seemed to whisper a secret that the wind was too hurried to carry.
+
+
+AI Text
+
+The tree is very tall. The sky is very dark. The branches are like fingers. The valley
+is very quiet. The leaves move on the ground. The place is very lonely. The place
+is very alive. The wood makes a sound. The wind moves very fast. The tree is old.
+The sky is dark. The valley is quiet.

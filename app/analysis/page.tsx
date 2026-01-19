@@ -103,6 +103,7 @@ interface AnalysisData {
     rareWordUsage: number;
     sentenceLengthVariation: number;
     transitionWordDensity: number;
+    wordFrequencyDistribution: number;
   };
   patterns?: Array<{
     category: string;
@@ -456,6 +457,22 @@ export default function AnalysisPage() {
                    </div>
                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                      High density of formal discourse markers (furthermore, moreover, consequently) suggests artificial writing. Humans typically use formal transitions in fewer than 20% of sentences.
+                   </div>
+                 </div>
+
+                 <div className="mt-4">
+                   <div className="flex justify-between items-center mb-2">
+                     <span className="text-slate-600 dark:text-slate-400">Word Frequency Distribution</span>
+                     <span className="text-slate-900 dark:text-white font-semibold">{Math.round(data.factors.wordFrequencyDistribution)}%</span>
+                   </div>
+                   <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
+                     <div
+                       className="h-full bg-purple-600 rounded-full"
+                       style={{ width: `${data.factors.wordFrequencyDistribution}%` }}
+                     />
+                   </div>
+                   <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                     Natural language follows Zipf's Law with varied word frequencies. Deviation from this pattern (unusually uniform or skewed distribution) suggests artificial generation.
                    </div>
                  </div>
                  </>

@@ -288,5 +288,23 @@ describe('Integrated AI Detection (analyzeText)', () => {
       expect(result.factors.punctuationPatterns).toBeDefined();
       expect(result.factors.punctuationPatterns).toBeGreaterThan(0);
     });
+
+    it('should report word frequency distribution in linguistic factors', () => {
+      // AI-like text with more uniform word distribution
+      const aiText = 'The analysis indicates several important factors. The research demonstrates meaningful findings. The study shows significant results. The investigation reveals crucial data. The examination presents key information. The findings highlight essential patterns. The research demonstrates notable trends. The results show comprehensive insights. The data reveal substantial evidence. The conclusions indicate important connections.';
+      const result = analyzeText(aiText);
+      
+      expect(result.factors.wordFrequencyDistribution).toBeDefined();
+      expect(typeof result.factors.wordFrequencyDistribution).toBe('number');
+      expect(result.factors.wordFrequencyDistribution).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should detect word frequency distribution pattern when present', () => {
+      const aiText = 'The analysis indicates several important factors. The research demonstrates meaningful findings. The study shows significant results. The investigation reveals crucial data. The examination presents key information.';
+      const result = analyzeText(aiText);
+      
+      // Should have word frequency distribution factor defined
+      expect(result.factors.wordFrequencyDistribution).toBeDefined();
+    });
   });
 });

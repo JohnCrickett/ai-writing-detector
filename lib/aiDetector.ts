@@ -112,9 +112,14 @@ import {
   TRANSITION_WORD_DENSITY_COLOR,
   type TransitionWordMatch,
 } from './transitionWordDensity';
+import {
+  detectWordFrequencyDistribution,
+  WORD_FREQUENCY_DISTRIBUTION_COLOR,
+  type WordFrequencyResult,
+} from './wordFrequencyDistribution';
 
 // Export colors for use in UI
-export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR, PUNCTUATION_PATTERNS_COLOR, RARE_WORD_USAGE_COLOR, SENTENCE_LENGTH_VARIATION_COLOR, TRANSITION_WORD_DENSITY_COLOR };
+export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, PROMOTIONAL_LANGUAGE_COLOR, OUTLINE_CONCLUSION_COLOR, NEGATIVE_PARALLELISM_COLOR, RULE_OF_THREE_COLOR, VAGUE_ATTRIBUTION_COLOR, OVERGENERALIZATION_COLOR, ELEGANT_VARIATION_COLOR, FALSE_RANGES_COLOR, FLESCH_KINCAID_COLOR, LEXICAL_DIVERSITY_COLOR, NAMED_ENTITY_DENSITY_COLOR, PARAGRAPH_COHERENCE_COLOR, PASSIVE_VOICE_FREQUENCY_COLOR, PUNCTUATION_PATTERNS_COLOR, RARE_WORD_USAGE_COLOR, SENTENCE_LENGTH_VARIATION_COLOR, TRANSITION_WORD_DENSITY_COLOR, WORD_FREQUENCY_DISTRIBUTION_COLOR };
 
 interface DetectionMetrics {
   score: number;
@@ -132,6 +137,7 @@ interface DetectionMetrics {
     rareWordUsage: number;
     sentenceLengthVariation: number;
     transitionWordDensity: number;
+    wordFrequencyDistribution: number;
   };
   patterns: PatternMatch[];
   highlights: TextHighlight[];
@@ -208,8 +214,11 @@ export function analyzeText(text: string): DetectionMetrics {
 
   // Detect transition word density
   const transitionWordDensityMatches = detectTransitionWordDensity(text);
+
+  // Detect word frequency distribution
+  const wordFrequencyDistributionResult = detectWordFrequencyDistribution(text);
   
-  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, passiveVoiceFrequencyResult, punctuationPatternMatches, rareWordUsageMatches, sentenceLengthVariationResult, and transitionWordDensityMatches are used for scoring/factors only, not for text highlights)
+  // Combine all highlights (note: namedEntityDensityMatches, paragraphCoherenceMatches, passiveVoiceFrequencyResult, punctuationPatternMatches, rareWordUsageMatches, sentenceLengthVariationResult, transitionWordDensityMatches, and wordFrequencyDistributionResult are used for scoring/factors only, not for text highlights)
   const allHighlights = [...aiVocabularyHighlights, ...undueEmphasisHighlights, ...superficialAnalysisHighlights, ...promotionalLanguageHighlights, ...outlineConclusionHighlights, ...negativeParallelismHighlights, ...ruleOfThreeHighlights, ...vagueAttributionHighlights, ...overgeneralizationHighlights, ...elegantVariationHighlights, ...falseRangesHighlights];
   
   // Sort by start position
@@ -249,6 +258,7 @@ export function analyzeText(text: string): DetectionMetrics {
   let rareWordUsageScore = 0;
   let sentenceLengthVariationScore = 0;
   let transitionWordDensityScore = 0;
+  let wordFrequencyDistributionScore = 0;
   
   if (aiVocabularyMatches.length > 0) {
     aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
@@ -350,6 +360,11 @@ export function analyzeText(text: string): DetectionMetrics {
   if (transitionWordDensityMatches.length > 0) {
     transitionWordDensityScore = Math.round(transitionWordDensityMatches[0].score);
     score += transitionWordDensityScore;
+  }
+
+  if (wordFrequencyDistributionResult.isAIPotential) {
+    wordFrequencyDistributionScore = wordFrequencyDistributionResult.score;
+    score += wordFrequencyDistributionScore;
   }
 
   // Clamp final score to 100
@@ -460,7 +475,16 @@ export function analyzeText(text: string): DetectionMetrics {
     });
   }
 
-  // Note: paragraphCoherenceMatches, punctuationPatternMatches, rareWordUsageMatches, sentenceLengthVariationResult, and transitionWordDensityMatches are used for scoring/factors only, not for pattern detection (like namedEntityDensity)
+  if (wordFrequencyDistributionResult.isAIPotential) {
+    patterns.push({
+      category: 'Word Frequency Distribution',
+      phrase: `Deviation from natural word frequency distribution (${wordFrequencyDistributionResult.deviation.toFixed(3)})`,
+      count: 1,
+      score: Math.round(wordFrequencyDistributionScore * scoreFactor),
+    });
+  }
+
+  // Note: paragraphCoherenceMatches, punctuationPatternMatches, rareWordUsageMatches, sentenceLengthVariationResult, transitionWordDensityMatches, and wordFrequencyDistributionResult are used for scoring/factors only, not for pattern detection (like namedEntityDensity)
 
   // Calculate vocabulary diversity percentage (0-100)
   // TTR ranges from 0 to 1, with 0.35-0.65 being normal, so we scale it as:
@@ -529,6 +553,21 @@ export function analyzeText(text: string): DetectionMetrics {
     transitionWordDensityFactor = Math.round(transitionWordDensityMatches[0].score * scoreFactor);
   }
 
+  // Calculate word frequency distribution factor (0-100)
+  // Scale deviation to percentage (0-100)
+  let wordFrequencyDistributionFactor = 0;
+  if (wordFrequencyDistributionResult.wordCount >= 20) {
+    // Scale deviation from 0.05 (threshold) to 0.3 (max realistic) as 0-100%
+    const threshold = 0.05;
+    const maxDeviation = 0.3;
+    if (wordFrequencyDistributionResult.deviation >= threshold) {
+      wordFrequencyDistributionFactor = Math.round(
+        ((wordFrequencyDistributionResult.deviation - threshold) / (maxDeviation - threshold)) * 100
+      );
+      wordFrequencyDistributionFactor = Math.min(wordFrequencyDistributionFactor, 100);
+    }
+  }
+
   return {
     score: finalScore,
     factors: {
@@ -545,6 +584,7 @@ export function analyzeText(text: string): DetectionMetrics {
       rareWordUsage: rareWordUsageFactor,
       sentenceLengthVariation: sentenceLengthVariationFactor,
       transitionWordDensity: transitionWordDensityFactor,
+      wordFrequencyDistribution: wordFrequencyDistributionFactor,
     },
     patterns,
     highlights,

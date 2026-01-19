@@ -111,6 +111,7 @@ export default function Home() {
                 <li>• Paragraph coherence</li>
                 <li>• Reading grade level</li>
                 <li>• Transition word density</li>
+                <li>• Word frequency distribution (Zipf's Law)</li>
               </ul>
             </div>
 
