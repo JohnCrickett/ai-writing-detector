@@ -434,6 +434,20 @@ export default function AnalysisPage() {
                     const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : pattern.category === 'Superficial Analysis' ? '#8b5cf6' : pattern.category === 'Promotional Language' ? '#f43f5e' : pattern.category === 'Outline Conclusion Pattern' ? '#ef4444' : pattern.category === 'Negative Parallelism' ? '#f97316' : pattern.category === 'Vague Attributions' ? '#6366f1' : pattern.category === 'Overgeneralization' ? '#06b6d4' : pattern.category === 'Elegant Variation' ? '#10b981' : pattern.category === 'False Ranges' ? '#eab308' : '#ec4899';
                     
                     const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : pattern.category === 'Superficial Analysis' ? 'text-purple-700 dark:text-purple-300' : pattern.category === 'Promotional Language' ? 'text-rose-700 dark:text-rose-300' : pattern.category === 'Outline Conclusion Pattern' ? 'text-red-700 dark:text-red-300' : pattern.category === 'Negative Parallelism' ? 'text-orange-700 dark:text-orange-300' : pattern.category === 'Vague Attributions' ? 'text-indigo-700 dark:text-indigo-300' : pattern.category === 'Overgeneralization' ? 'text-cyan-700 dark:text-cyan-300' : pattern.category === 'Elegant Variation' ? 'text-green-700 dark:text-green-300' : pattern.category === 'False Ranges' ? 'text-yellow-700 dark:text-yellow-300' : 'text-pink-700 dark:text-pink-300';
+
+                    const patternExplanations: Record<string, string> = {
+                      'AI Vocabulary': 'Overused words and phrases commonly produced by language models, such as "delve", "navigate", "robust", or "innovative solutions".',
+                      'Superficial Analysis': 'Vague significance claims and attributions that lack specificity, like "significant developments" or "it is worth noting".',
+                      'Promotional Language': 'Marketing superlatives and persuasive phrasing like "impressive features", "game-changer", or "transformative potential".',
+                      'Outline Conclusion Pattern': 'Formulaic conclusion patterns, particularly the "Despite challenges... but also positive" structure.',
+                      'Negative Parallelism': 'Rigid structural patterns like "not only... but also" and similar overly formal parallel constructions.',
+                      'Vague Attributions': 'Appeals to "experts" or "industry reports" without specifics, like "experts agree" or "studies show".',
+                      'Overgeneralization': 'Patterns that frame limited information as universal, like "everyone knows" or "it is well established".',
+                      'Elegant Variation': 'Repetitive synonym substitution where the same subject is referred to by different but equivalent terms.',
+                      'False Ranges': '"From...to" constructions that lack coherent scales or meaningful comparison between metrics.',
+                      'Undue Emphasis': 'Excessive use of emphasizing words, superlatives, intensifiers, and emphatic punctuation.',
+                      'Rule of Three': 'Overuse of triple-adjective/noun/verb patterns and the rhetorical "rule of three" structure.',
+                    };
                   
                   return (
                     <div key={idx} className="mt-4">
@@ -450,6 +464,9 @@ export default function AnalysisPage() {
                             height: '100%'
                           }}
                         />
+                      </div>
+                      <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        {patternExplanations[pattern.category] || 'AI-associated pattern detected in the text.'}
                       </div>
                     </div>
                   );
