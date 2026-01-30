@@ -425,10 +425,12 @@ export default function AnalysisPage() {
                  </>
                  )}
 
-            {data.patterns && data.patterns.length > 0 && (
+            {data.patterns && (
               <>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 mt-6 border-t border-slate-200 dark:border-slate-700 pt-6">Pattern Detection</h4>
-                {data.patterns.map((pattern, idx) => {
+                {data.patterns.length === 0 ? (
+                  <p className="text-slate-500 dark:text-slate-400 italic">No AI-associated patterns detected.</p>
+                ) : data.patterns.map((pattern, idx) => {
                     const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : pattern.category === 'Superficial Analysis' ? '#8b5cf6' : pattern.category === 'Promotional Language' ? '#f43f5e' : pattern.category === 'Outline Conclusion Pattern' ? '#ef4444' : pattern.category === 'Negative Parallelism' ? '#f97316' : pattern.category === 'Vague Attributions' ? '#6366f1' : pattern.category === 'Overgeneralization' ? '#06b6d4' : pattern.category === 'Elegant Variation' ? '#10b981' : pattern.category === 'False Ranges' ? '#eab308' : '#ec4899';
                     
                     const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : pattern.category === 'Superficial Analysis' ? 'text-purple-700 dark:text-purple-300' : pattern.category === 'Promotional Language' ? 'text-rose-700 dark:text-rose-300' : pattern.category === 'Outline Conclusion Pattern' ? 'text-red-700 dark:text-red-300' : pattern.category === 'Negative Parallelism' ? 'text-orange-700 dark:text-orange-300' : pattern.category === 'Vague Attributions' ? 'text-indigo-700 dark:text-indigo-300' : pattern.category === 'Overgeneralization' ? 'text-cyan-700 dark:text-cyan-300' : pattern.category === 'Elegant Variation' ? 'text-green-700 dark:text-green-300' : pattern.category === 'False Ranges' ? 'text-yellow-700 dark:text-yellow-300' : 'text-pink-700 dark:text-pink-300';

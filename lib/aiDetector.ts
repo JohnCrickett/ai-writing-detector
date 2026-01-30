@@ -124,11 +124,7 @@ export { AI_VOCABULARY_COLOR, UNDUE_EMPHASIS_COLOR, SUPERFICIAL_ANALYSIS_COLOR, 
 interface DetectionMetrics {
   score: number;
   factors: {
-    repetition: number;
-    formalTone: number;
-    sentenceVariety: number;
     vocabulary: number;
-    structure: number;
     readingGradeLevel: number;
     namedEntityDensity: number;
     paragraphCoherence: number;
