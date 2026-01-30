@@ -475,15 +475,6 @@ export function analyzeText(text: string): DetectionMetrics {
     });
   }
 
-  if (wordFrequencyDistributionResult.isAIPotential) {
-    patterns.push({
-      category: 'Word Frequency Distribution',
-      phrase: `Deviation from natural word frequency distribution (${wordFrequencyDistributionResult.deviation.toFixed(3)})`,
-      count: 1,
-      score: Math.round(wordFrequencyDistributionScore * scoreFactor),
-    });
-  }
-
   // Note: paragraphCoherenceMatches, punctuationPatternMatches, rareWordUsageMatches, sentenceLengthVariationResult, transitionWordDensityMatches, and wordFrequencyDistributionResult are used for scoring/factors only, not for pattern detection (like namedEntityDensity)
 
   // Calculate vocabulary diversity percentage (0-100)
