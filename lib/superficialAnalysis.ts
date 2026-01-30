@@ -88,8 +88,9 @@ export function detectSuperficialAnalysis(text: string): SuperficialAnalysisMatc
   // Detect watch words
   for (const pattern of watchWords) {
     // Use root for regex matching if available, otherwise use phrase
-    const regexPattern = (pattern as any).root || pattern.phrase;
-    const regex = createRegexPattern(regexPattern, (pattern as any).partial);
+    const patternWithRoot = pattern as { phrase: string; description: string; root?: string; partial?: boolean };
+    const regexPattern = patternWithRoot.root || pattern.phrase;
+    const regex = createRegexPattern(regexPattern, patternWithRoot.partial);
     const foundMatches = lowerText.match(regex);
 
     if (foundMatches) {

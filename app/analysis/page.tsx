@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
 
 interface TextHighlight {
@@ -34,7 +33,7 @@ function HighlightedText({
   }> = [];
   let lastIndex = 0;
 
-  highlights.forEach((highlight, idx) => {
+  highlights.forEach((highlight, _idx) => {
     // Add text before highlight
     if (lastIndex < highlight.start) {
       segments.push({
@@ -116,17 +115,14 @@ interface AnalysisData {
 }
 
 export default function AnalysisPage() {
-  const [data, setData] = useState<AnalysisData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem('analysisData');
-    if (stored) {
-      setData(JSON.parse(stored));
+  const [data] = useState<AnalysisData | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('analysisData');
+      return stored ? JSON.parse(stored) : null;
     }
-    setLoading(false);
-  }, []);
+    return null;
+  });
+  const [loading] = useState(false);
 
   if (loading) {
     return (
@@ -419,7 +415,7 @@ export default function AnalysisPage() {
                      />
                    </div>
                    <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                     Natural language follows Zipf's Law with varied word frequencies. Deviation from this pattern (unusually uniform or skewed distribution) suggests artificial generation.
+                     Natural language follows Zipf&apos;s Law with varied word frequencies. Deviation from this pattern (unusually uniform or skewed distribution) suggests artificial generation.
                    </div>
                  </div>
                  </>
