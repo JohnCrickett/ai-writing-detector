@@ -93,7 +93,7 @@ export function detectRuleOfThree(text: string): RuleOfThreeMatch[] {
           count: count,
         });
       }
-    } catch (e) {
+    } catch {
       // Skip this pattern if it causes an error
       continue;
     }
@@ -171,7 +171,7 @@ export function generateRuleOfThreeHighlights(
         
         iterations++;
       }
-    } catch (e) {
+    } catch {
       // Skip this pattern if it causes an error
       continue;
     }

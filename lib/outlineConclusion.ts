@@ -257,7 +257,6 @@ function detectVaguePositivePattern(lowerText: string): OutlineConclusionMatch[]
 function detectFuturePositivePattern(lowerText: string): OutlineConclusionMatch[] {
   const matches: OutlineConclusionMatch[] = [];
 
-  const futureKeywords = ['future', 'potential', 'upcoming', 'next'];
   const futurePositiveRegex = /(?:future|potential|upcoming|next)[^.!?]{0,100}(?:could|might|may|can)\s+(?:enhance|improve|strengthen|benefit|advance|help)/gi;
 
   let match;

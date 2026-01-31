@@ -49,7 +49,6 @@ export function detectPunctuationPatterns(text: string): PatternMatch[] {
   const semicolonDensity = semicolons / sentenceCount;
   const emDashDensity = emDashes / sentenceCount;
   const ellipsisDensity = ellipses / sentenceCount;
-  const exclamationDensity = exclamations / sentenceCount;
 
   // Add punctuation count matches
   if (semicolons > 0) {
@@ -217,13 +216,10 @@ export function generatePunctuationPatternHighlights(
       const enDashIndex = text.indexOf('–', startIndex);
       
       index = -1;
-      let char = '';
       if (emDashIndex !== -1 && (enDashIndex === -1 || emDashIndex < enDashIndex)) {
         index = emDashIndex;
-        char = '—';
       } else if (enDashIndex !== -1) {
         index = enDashIndex;
-        char = '–';
       }
       
       if (index === -1) break;

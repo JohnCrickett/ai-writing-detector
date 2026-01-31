@@ -121,7 +121,7 @@ function extractNames(text: string): Map<string, string[]> {
 function findNameVariations(names: Map<string, string[]>): NameVariation[] {
   const variations: NameVariation[] = [];
   
-  for (const [normalized, variants] of names.entries()) {
+  for (const [, variants] of names.entries()) {
     // Remove duplicates and keep unique variants
     const uniqueVariants = Array.from(new Set(variants));
     
@@ -170,10 +170,9 @@ export function detectElegantVariation(text: string): ElegantVariationMatch[] {
       for (const variant of variation.variants) {
         let count = 0;
         const regex = new RegExp(`\\b${escapeRegExp(variant.toLowerCase())}\\b`, 'g');
-        let matchResult;
         
         iterations = 0;
-        while ((matchResult = regex.exec(lowerText)) !== null && iterations < maxIterations) {
+        while (regex.exec(lowerText) !== null && iterations < maxIterations) {
           count++;
           iterations++;
         }
@@ -206,10 +205,9 @@ export function detectElegantVariation(text: string): ElegantVariationMatch[] {
     for (const synonym of synonyms) {
       let count = 0;
       const regex = new RegExp(`\\b${escapeRegExp(synonym.toLowerCase())}\\b`, 'gi');
-      let matchResult;
       
       iterations = 0;
-      while ((matchResult = regex.exec(lowerText)) !== null && iterations < maxIterations) {
+      while (regex.exec(lowerText) !== null && iterations < maxIterations) {
         count++;
         iterations++;
       }

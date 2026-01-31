@@ -87,7 +87,7 @@ export function detectNegativeParallelism(text: string): NegativeParallelismMatc
           count: count,
         });
       }
-    } catch (e) {
+    } catch {
       // Skip this pattern if it causes an error
       continue;
     }
@@ -164,7 +164,7 @@ export function generateNegativeParallelismHighlights(
         
         iterations++;
       }
-    } catch (e) {
+    } catch {
       // Skip this pattern if it causes an error
       continue;
     }

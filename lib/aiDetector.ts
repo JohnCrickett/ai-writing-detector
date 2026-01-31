@@ -228,11 +228,8 @@ export function analyzeText(text: string): DetectionMetrics {
   let falseRangesCount = 0;
   let fleschKincaidScore = 0;
   let lexicalDiversityScore = 0;
-  let namedEntityDensityCount = 0;
-  let paragraphCoherenceCount = 0;
   let passiveVoiceFrequencyScore = 0;
   let punctuationPatternScore = 0;
-  let punctuationPatternCount = 0;
   let rareWordUsageScore = 0;
   let sentenceLengthVariationScore = 0;
   let transitionWordDensityScore = 0;
@@ -304,12 +301,10 @@ export function analyzeText(text: string): DetectionMetrics {
   }
 
   if (namedEntityDensityMatches.length > 0) {
-    namedEntityDensityCount = namedEntityDensityMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(namedEntityDensityMatches.length * 6, 35);
   }
 
   if (paragraphCoherenceMatches.length > 0) {
-    paragraphCoherenceCount = paragraphCoherenceMatches.length;
     score += Math.min(paragraphCoherenceMatches.length * 5, 30);
   }
 
@@ -320,7 +315,6 @@ export function analyzeText(text: string): DetectionMetrics {
 
   if (punctuationPatternMatches.length > 0) {
     const aiSignals = punctuationPatternMatches.filter(m => m.score > 0);
-    punctuationPatternCount = aiSignals.length;
     punctuationPatternScore = Math.min(aiSignals.reduce((sum, match) => sum + match.score, 0), 40);
     score += punctuationPatternScore;
   }

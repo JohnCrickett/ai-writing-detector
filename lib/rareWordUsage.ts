@@ -396,14 +396,6 @@ const COMMON_WORDS = new Set([
 ]);
 
 /**
- * Count total words in text
- */
-function countWords(text: string): number {
-  const words = text.match(/\b\w+\b/g);
-  return words ? words.length : 0;
-}
-
-/**
  * Extract words from text
  */
 function extractWords(text: string): string[] {

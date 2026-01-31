@@ -33,7 +33,7 @@ function HighlightedText({
   }> = [];
   let lastIndex = 0;
 
-  highlights.forEach((highlight, _idx) => {
+  highlights.forEach((highlight) => {
     // Add text before highlight
     if (lastIndex < highlight.start) {
       segments.push({

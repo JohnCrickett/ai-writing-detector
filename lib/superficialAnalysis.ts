@@ -165,10 +165,9 @@ export function detectSuperficialAnalysis(text: string): SuperficialAnalysisMatc
 
   // Detect named source attributions (RAG-style false citations)
   // Look for "[Name] [verb] that this [suggests significance]"
-  let namedMatch;
   let namedCount = 0;
 
-  while ((namedMatch = namedSourcePattern.exec(text)) !== null) {
+  while (namedSourcePattern.exec(text) !== null) {
     namedCount++;
   }
 

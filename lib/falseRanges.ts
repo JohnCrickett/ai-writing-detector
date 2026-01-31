@@ -43,7 +43,7 @@ export function detectFalseRanges(text: string): FalseRangeMatch[] {
     const endPhrase = match[2].trim();
     
     // Check if this is a false range
-    const falseRangeResult = isFalseRange(startPhrase, endPhrase, fullMatch);
+    const falseRangeResult = isFalseRange(startPhrase, endPhrase);
     
     if (falseRangeResult) {
       matches.push({
@@ -71,7 +71,7 @@ export function detectFalseRanges(text: string): FalseRangeMatch[] {
     if (isDuplicate) continue;
     
     // Check if this is a false range
-    const falseRangeResult = isFalseRange(startPhrase, endPhrase, fullMatch);
+    const falseRangeResult = isFalseRange(startPhrase, endPhrase);
     
     if (falseRangeResult) {
       matches.push({
@@ -92,8 +92,7 @@ export function detectFalseRanges(text: string): FalseRangeMatch[] {
  */
 function isFalseRange(
   startPhrase: string,
-  endPhrase: string,
-  fullText: string
+  endPhrase: string
 ): { reason: string; isRhetorical: boolean } | null {
   const start = startPhrase.toLowerCase();
   const end = endPhrase.toLowerCase();
@@ -258,7 +257,7 @@ function isRelatedDomain(start: string, end: string): boolean {
     scale: ['small', 'large', 'basic', 'advanced', 'simple', 'complex'],
   };
   
-  for (const [_, keywords] of Object.entries(domains)) {
+  for (const [, keywords] of Object.entries(domains)) {
     const startInDomain = keywords.some(k => start.includes(k));
     const endInDomain = keywords.some(k => end.includes(k));
     if (startInDomain && endInDomain) {
@@ -283,12 +282,12 @@ function isUnrelatedDomains(start: string, end: string): boolean {
   
   // Determine which domain(s) each endpoint belongs to
   const startDomains = Object.entries(domainKeywords)
-    .filter(([_, keywords]) => keywords.some(k => start.includes(k)))
-    .map(([domain, _]) => domain);
+    .filter(([, keywords]) => keywords.some(k => start.includes(k)))
+    .map(([domain]) => domain);
   
   const endDomains = Object.entries(domainKeywords)
-    .filter(([_, keywords]) => keywords.some(k => end.includes(k)))
-    .map(([domain, _]) => domain);
+    .filter(([, keywords]) => keywords.some(k => end.includes(k)))
+    .map(([domain]) => domain);
   
   // If they have no domains in common, they're unrelated
   if (startDomains.length > 0 && endDomains.length > 0) {

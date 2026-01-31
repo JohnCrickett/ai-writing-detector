@@ -242,7 +242,7 @@ describe('Undue Emphasis Detection', () => {
       const text = 'The standing ovation served the purpose.';
       const matches = detectUndueEmphasis(text);
       // Should either find nothing or only match legitimate terms
-      const unnecessaryMatches = matches.filter(m => !m.phrase.includes('serves'));
+      matches.filter(m => !m.phrase.includes('serves'));
       expect(matches.every(m => m.phrase.toLowerCase().includes('serves') || m.phrase.toLowerCase().includes('stand'))).toBe(true);
     });
 

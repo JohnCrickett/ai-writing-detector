@@ -129,49 +129,6 @@ const FORMAL_TRANSITIONS = new Set([
 ]);
 
 /**
- * Conversational connectors - more natural in human writing
- * These are excluded from formal transition counting
- */
-const CONVERSATIONAL_TRANSITIONS = new Set([
-  'and',
-  'so',
-  'but',
-  'yet',
-  'or',
-  'because',
-  'when',
-  'while',
-  'after',
-  'before',
-  'since',
-  'then',
-  'now',
-  'like',
-  'though',
-  'actually',
-  'really',
-  'you know',
-  'i mean',
-  'kind of',
-  'sort of',
-  'i think',
-  'i guess',
-  'you see',
-  'look',
-  'listen',
-  'well',
-  'anyway',
-  'alright',
-  'okay',
-  'ok',
-  'sure',
-  'whatever',
-  'maybe',
-  'perhaps',
-  'probably',
-]);
-
-/**
  * Sentence splitting - handles multiple sentence types
  */
 function getSentences(text: string): string[] {
@@ -201,13 +158,6 @@ function isFormalTransition(word: string): boolean {
 }
 
 /**
- * Check if a word is a conversational transition
- */
-function isConversationalTransition(word: string): boolean {
-  return CONVERSATIONAL_TRANSITIONS.has(word.toLowerCase());
-}
-
-/**
  * Check if a sentence starts with a transition word
  */
 function startsWithTransition(sentence: string): { isTransition: boolean; word: string | null; isFormal: boolean } {
@@ -218,7 +168,6 @@ function startsWithTransition(sentence: string): { isTransition: boolean; word: 
   }
 
   const isFormal = isFormalTransition(firstWord);
-  const isConv = isConversationalTransition(firstWord);
 
   return {
     isTransition: isFormal,
@@ -270,9 +219,6 @@ export function detectTransitionWordDensity(text: string): TransitionWordMatch[]
   if (!isAIPotential) {
     return [];
   }
-
-  // Calculate total density including conversational
-  const totalDensity = (formalCount + conversationalCount) / sentences.length;
 
   const match: TransitionWordMatch = {
     transitionWords: Array.from(new Set(transitionWords)).sort(),
