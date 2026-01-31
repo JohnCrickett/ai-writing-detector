@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { getHighlightBgColor, getCategoryBadgeClass, getCategoryBarColor, getCategoryTextClass } from '@/lib/categoryColors';
 
 interface TextHighlight {
   start: number;
@@ -34,7 +35,6 @@ function HighlightedText({
   let lastIndex = 0;
 
   highlights.forEach((highlight) => {
-    // Add text before highlight
     if (lastIndex < highlight.start) {
       segments.push({
         type: 'text',
@@ -42,7 +42,6 @@ function HighlightedText({
       });
     }
 
-    // Add highlighted text
     segments.push({
       type: 'highlight',
       content: text.substring(highlight.start, highlight.end),
@@ -52,7 +51,6 @@ function HighlightedText({
     lastIndex = highlight.end;
   });
 
-  // Add remaining text
   if (lastIndex < text.length) {
     segments.push({
       type: 'text',
@@ -67,7 +65,7 @@ function HighlightedText({
           <span
             key={idx}
             style={{
-              backgroundColor: segment.category?.includes('Vocabulary') ? '#fbbf24' : segment.category?.includes('Superficial') ? '#8b5cf6' : segment.category?.includes('Promotional') ? '#f43f5e' : segment.category?.includes('Outline') ? '#ef4444' : segment.category?.includes('Negative Parallelism') ? '#f97316' : segment.category?.includes('Vague Attribution') ? '#6366f1' : segment.category?.includes('Overgeneralization') ? '#06b6d4' : segment.category?.includes('Elegant Variation') ? '#10b981' : segment.category?.includes('False Ranges') ? '#eab308' : segment.category?.includes('Rare Word') ? '#8b5cf6' : '#ec4899',
+              backgroundColor: getHighlightBgColor(segment.category ?? ''),
               color: '#1e293b',
             }}
             className="font-semibold rounded px-1"
@@ -238,17 +236,14 @@ export default function AnalysisPage() {
             <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
               <p className="mb-3 font-semibold">Detected factors:</p>
               <div className="flex flex-wrap gap-2">
-                {Array.from(new Set(data.highlights.map((h) => h.category).filter((c) => c !== 'Named Entity Density'))).map((category) => {
-                   const bgColor = category?.includes('Vocabulary') ? 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200' : category?.includes('Superficial') ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' : category?.includes('Promotional') ? 'bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200' : category?.includes('Outline') ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : category?.includes('Negative Parallelism') ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' : category?.includes('Vague Attribution') ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200' : category?.includes('Overgeneralization') ? 'bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200' : category?.includes('Elegant Variation') ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : category?.includes('False Ranges') ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' : 'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200';
-                  return (
+                {Array.from(new Set(data.highlights.map((h) => h.category).filter((c) => c !== 'Named Entity Density'))).map((category) => (
                     <span
                       key={category}
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${bgColor}`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryBadgeClass(category)}`}
                     >
                       {category}
                     </span>
-                  );
-                })}
+                ))}
               </div>
             </div>
           )}
@@ -427,10 +422,6 @@ export default function AnalysisPage() {
                 {data.patterns.length === 0 ? (
                   <p className="text-slate-500 dark:text-slate-400 italic">No AI-associated patterns detected.</p>
                 ) : data.patterns.map((pattern, idx) => {
-                    const barColor = pattern.category === 'AI Vocabulary' ? '#fbbf24' : pattern.category === 'Superficial Analysis' ? '#8b5cf6' : pattern.category === 'Promotional Language' ? '#f43f5e' : pattern.category === 'Outline Conclusion Pattern' ? '#ef4444' : pattern.category === 'Negative Parallelism' ? '#f97316' : pattern.category === 'Vague Attributions' ? '#6366f1' : pattern.category === 'Overgeneralization' ? '#06b6d4' : pattern.category === 'Elegant Variation' ? '#10b981' : pattern.category === 'False Ranges' ? '#eab308' : '#ec4899';
-                    
-                    const labelColor = pattern.category === 'AI Vocabulary' ? 'text-amber-700 dark:text-amber-300' : pattern.category === 'Superficial Analysis' ? 'text-purple-700 dark:text-purple-300' : pattern.category === 'Promotional Language' ? 'text-rose-700 dark:text-rose-300' : pattern.category === 'Outline Conclusion Pattern' ? 'text-red-700 dark:text-red-300' : pattern.category === 'Negative Parallelism' ? 'text-orange-700 dark:text-orange-300' : pattern.category === 'Vague Attributions' ? 'text-indigo-700 dark:text-indigo-300' : pattern.category === 'Overgeneralization' ? 'text-cyan-700 dark:text-cyan-300' : pattern.category === 'Elegant Variation' ? 'text-green-700 dark:text-green-300' : pattern.category === 'False Ranges' ? 'text-yellow-700 dark:text-yellow-300' : 'text-pink-700 dark:text-pink-300';
-
                     const patternExplanations: Record<string, string> = {
                       'AI Vocabulary': 'Overused words and phrases commonly produced by language models, such as "delve", "navigate", "robust", or "innovative solutions".',
                       'Superficial Analysis': 'Vague significance claims and attributions that lack specificity, like "significant developments" or "it is worth noting".',
@@ -448,7 +439,7 @@ export default function AnalysisPage() {
                   return (
                     <div key={idx} className="mt-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className={`${labelColor} font-medium`}>{pattern.category}</span>
+                        <span className={`${getCategoryTextClass(pattern.category)} font-medium`}>{pattern.category}</span>
                         <span className="text-slate-900 dark:text-white font-semibold">{pattern.score}%</span>
                       </div>
                       <div className="w-full bg-slate-300 dark:bg-slate-700 rounded-full h-2">
@@ -456,7 +447,7 @@ export default function AnalysisPage() {
                           className="rounded-full"
                           style={{ 
                             width: `${pattern.score}%`,
-                            backgroundColor: barColor,
+                            backgroundColor: getCategoryBarColor(pattern.category),
                             height: '100%'
                           }}
                         />

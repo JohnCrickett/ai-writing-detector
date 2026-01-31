@@ -215,89 +215,91 @@ export function analyzeText(text: string): DetectionMetrics {
   
   // Calculate score based on all detectors
   let score = 0;
-  let aiVocabWordCount = 0;
-  let undueEmphasisCount = 0;
-  let superficialAnalysisCount = 0;
-  let promotionalLanguageCount = 0;
-  let outlineConclusionCount = 0;
-  let negativeParallelismCount = 0;
-  let ruleOfThreeCount = 0;
-  let vagueAttributionCount = 0;
-  let overgeneralizationCount = 0;
-  let elegantVariationCount = 0;
-  let falseRangesCount = 0;
-  let fleschKincaidScore = 0;
-  let lexicalDiversityScore = 0;
-  let passiveVoiceFrequencyScore = 0;
-  let punctuationPatternScore = 0;
-  let rareWordUsageScore = 0;
-  let sentenceLengthVariationScore = 0;
-  let transitionWordDensityScore = 0;
-  let wordFrequencyDistributionScore = 0;
+  
+  const counts = {
+    aiVocab: 0,
+    undueEmphasis: 0,
+    superficialAnalysis: 0,
+    promotionalLanguage: 0,
+    outlineConclusion: 0,
+    negativeParallelism: 0,
+    ruleOfThree: 0,
+    vagueAttribution: 0,
+    overgeneralization: 0,
+    elegantVariation: 0,
+    falseRanges: 0,
+  };
+  
+  const scores = {
+    passiveVoiceFrequency: 0,
+    punctuationPattern: 0,
+    rareWordUsage: 0,
+    sentenceLengthVariation: 0,
+    transitionWordDensity: 0,
+    wordFrequencyDistribution: 0,
+  };
   
   if (aiVocabularyMatches.length > 0) {
-    aiVocabWordCount = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.aiVocab = aiVocabularyMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(aiVocabularyMatches.length * 5, 40);
   }
   
   if (undueEmphasisMatches.length > 0) {
-    undueEmphasisCount = undueEmphasisMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.undueEmphasis = undueEmphasisMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(undueEmphasisMatches.length * 3, 30);
   }
   
   if (superficialAnalysisMatches.length > 0) {
-    superficialAnalysisCount = superficialAnalysisMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.superficialAnalysis = superficialAnalysisMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(superficialAnalysisMatches.length * 4, 30);
   }
   
   if (promotionalLanguageMatches.length > 0) {
-    promotionalLanguageCount = promotionalLanguageMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.promotionalLanguage = promotionalLanguageMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(promotionalLanguageMatches.length * 3, 25);
   }
   
   if (outlineConclusionMatches.length > 0) {
-    outlineConclusionCount = outlineConclusionMatches.length;
+    counts.outlineConclusion = outlineConclusionMatches.length;
     score += Math.min(outlineConclusionMatches.length * 8, 30);
   }
 
   if (negativeParallelismMatches.length > 0) {
-    negativeParallelismCount = negativeParallelismMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.negativeParallelism = negativeParallelismMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(negativeParallelismMatches.length * 4, 25);
   }
 
   if (ruleOfThreeMatches.length > 0) {
-    ruleOfThreeCount = ruleOfThreeMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.ruleOfThree = ruleOfThreeMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(ruleOfThreeMatches.length * 5, 30);
   }
 
   if (vagueAttributionMatches.length > 0) {
-    vagueAttributionCount = vagueAttributionMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.vagueAttribution = vagueAttributionMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(vagueAttributionMatches.length * 4, 30);
   }
 
   if (overgeneralizationMatches.length > 0) {
-    overgeneralizationCount = overgeneralizationMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.overgeneralization = overgeneralizationMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(overgeneralizationMatches.length * 3, 25);
   }
 
   if (elegantVariationMatches.length > 0) {
-    elegantVariationCount = elegantVariationMatches.reduce((sum, match) => sum + match.count, 0);
+    counts.elegantVariation = elegantVariationMatches.reduce((sum, match) => sum + match.count, 0);
     score += Math.min(elegantVariationMatches.length * 4, 25);
   }
 
   if (falseRangesMatches.length > 0) {
-    falseRangesCount = falseRangesMatches.length;
+    counts.falseRanges = falseRangesMatches.length;
     score += Math.min(falseRangesMatches.length * 6, 30);
   }
 
   if (fleschKincaidResult.isAIPotential) {
-    fleschKincaidScore = Math.round(fleschKincaidResult.score);
-    score += fleschKincaidScore;
+    score += Math.round(fleschKincaidResult.score);
   }
 
   if (lexicalDiversityResult.isAIPotential) {
-    lexicalDiversityScore = Math.round(lexicalDiversityResult.score);
-    score += lexicalDiversityScore;
+    score += Math.round(lexicalDiversityResult.score);
   }
 
   if (namedEntityDensityMatches.length > 0) {
@@ -309,34 +311,34 @@ export function analyzeText(text: string): DetectionMetrics {
   }
 
   if (passiveVoiceFrequencyResult.isAIPotential) {
-    passiveVoiceFrequencyScore = passiveVoiceFrequencyResult.score;
-    score += passiveVoiceFrequencyScore;
+    scores.passiveVoiceFrequency = passiveVoiceFrequencyResult.score;
+    score += scores.passiveVoiceFrequency;
   }
 
   if (punctuationPatternMatches.length > 0) {
     const aiSignals = punctuationPatternMatches.filter(m => m.score > 0);
-    punctuationPatternScore = Math.min(aiSignals.reduce((sum, match) => sum + match.score, 0), 40);
-    score += punctuationPatternScore;
+    scores.punctuationPattern = Math.min(aiSignals.reduce((sum, match) => sum + match.score, 0), 40);
+    score += scores.punctuationPattern;
   }
 
   if (rareWordUsageMatches.length > 0) {
-    rareWordUsageScore = Math.round(rareWordUsageMatches[0].score);
-    score += rareWordUsageScore;
+    scores.rareWordUsage = Math.round(rareWordUsageMatches[0].score);
+    score += scores.rareWordUsage;
   }
 
   if (sentenceLengthVariationResult.isAIPotential) {
-    sentenceLengthVariationScore = sentenceLengthVariationResult.score;
-    score += sentenceLengthVariationScore;
+    scores.sentenceLengthVariation = sentenceLengthVariationResult.score;
+    score += scores.sentenceLengthVariation;
   }
 
   if (transitionWordDensityMatches.length > 0) {
-    transitionWordDensityScore = Math.round(transitionWordDensityMatches[0].score);
-    score += transitionWordDensityScore;
+    scores.transitionWordDensity = Math.round(transitionWordDensityMatches[0].score);
+    score += scores.transitionWordDensity;
   }
 
   if (wordFrequencyDistributionResult.isAIPotential) {
-    wordFrequencyDistributionScore = wordFrequencyDistributionResult.score;
-    score += wordFrequencyDistributionScore;
+    scores.wordFrequencyDistribution = wordFrequencyDistributionResult.score;
+    score += scores.wordFrequencyDistribution;
   }
 
   // Clamp final score to 100
@@ -351,8 +353,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (aiVocabularyMatches.length > 0) {
     patterns.push({
       category: 'AI Vocabulary',
-      phrase: `${aiVocabularyMatches.length} distinct words (${aiVocabWordCount} total occurrences)`,
-      count: aiVocabWordCount,
+      phrase: `${aiVocabularyMatches.length} distinct words (${counts.aiVocab} total occurrences)`,
+      count: counts.aiVocab,
       score: Math.round(Math.min(aiVocabularyMatches.length * 5, 40) * scoreFactor),
     });
   }
@@ -360,8 +362,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (undueEmphasisMatches.length > 0) {
     patterns.push({
       category: 'Undue Emphasis',
-      phrase: `${undueEmphasisMatches.length} distinct phrases (${undueEmphasisCount} total occurrences)`,
-      count: undueEmphasisCount,
+      phrase: `${undueEmphasisMatches.length} distinct phrases (${counts.undueEmphasis} total occurrences)`,
+      count: counts.undueEmphasis,
       score: Math.round(Math.min(undueEmphasisMatches.length * 3, 30) * scoreFactor),
     });
   }
@@ -369,8 +371,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (superficialAnalysisMatches.length > 0) {
     patterns.push({
       category: 'Superficial Analysis',
-      phrase: `${superficialAnalysisMatches.length} distinct patterns (${superficialAnalysisCount} total occurrences)`,
-      count: superficialAnalysisCount,
+      phrase: `${superficialAnalysisMatches.length} distinct patterns (${counts.superficialAnalysis} total occurrences)`,
+      count: counts.superficialAnalysis,
       score: Math.round(Math.min(superficialAnalysisMatches.length * 4, 30) * scoreFactor),
     });
   }
@@ -378,8 +380,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (promotionalLanguageMatches.length > 0) {
     patterns.push({
       category: 'Promotional Language',
-      phrase: `${promotionalLanguageMatches.length} distinct phrases (${promotionalLanguageCount} total occurrences)`,
-      count: promotionalLanguageCount,
+      phrase: `${promotionalLanguageMatches.length} distinct phrases (${counts.promotionalLanguage} total occurrences)`,
+      count: counts.promotionalLanguage,
       score: Math.round(Math.min(promotionalLanguageMatches.length * 3, 25) * scoreFactor),
     });
   }
@@ -388,7 +390,7 @@ export function analyzeText(text: string): DetectionMetrics {
     patterns.push({
       category: 'Outline Conclusion Pattern',
       phrase: `${outlineConclusionMatches.length} instance(s) of rigid "despite-challenges-positive" formula`,
-      count: outlineConclusionCount,
+      count: counts.outlineConclusion,
       score: Math.round(Math.min(outlineConclusionMatches.length * 8, 30) * scoreFactor),
     });
   }
@@ -396,8 +398,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (negativeParallelismMatches.length > 0) {
     patterns.push({
       category: 'Negative Parallelism',
-      phrase: `${negativeParallelismMatches.length} distinct pattern(s) (${negativeParallelismCount} total occurrences)`,
-      count: negativeParallelismCount,
+      phrase: `${negativeParallelismMatches.length} distinct pattern(s) (${counts.negativeParallelism} total occurrences)`,
+      count: counts.negativeParallelism,
       score: Math.round(Math.min(negativeParallelismMatches.length * 4, 25) * scoreFactor),
     });
   }
@@ -405,8 +407,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (ruleOfThreeMatches.length > 0) {
     patterns.push({
       category: 'Rule of Three',
-      phrase: `${ruleOfThreeMatches.length} distinct pattern(s) (${ruleOfThreeCount} total occurrences)`,
-      count: ruleOfThreeCount,
+      phrase: `${ruleOfThreeMatches.length} distinct pattern(s) (${counts.ruleOfThree} total occurrences)`,
+      count: counts.ruleOfThree,
       score: Math.round(Math.min(ruleOfThreeMatches.length * 5, 30) * scoreFactor),
     });
   }
@@ -414,8 +416,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (vagueAttributionMatches.length > 0) {
     patterns.push({
       category: 'Vague Attributions',
-      phrase: `${vagueAttributionMatches.length} distinct phrase(s) (${vagueAttributionCount} total occurrences)`,
-      count: vagueAttributionCount,
+      phrase: `${vagueAttributionMatches.length} distinct phrase(s) (${counts.vagueAttribution} total occurrences)`,
+      count: counts.vagueAttribution,
       score: Math.round(Math.min(vagueAttributionMatches.length * 4, 30) * scoreFactor),
     });
   }
@@ -423,8 +425,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (overgeneralizationMatches.length > 0) {
     patterns.push({
       category: 'Overgeneralization',
-      phrase: `${overgeneralizationMatches.length} distinct pattern(s) (${overgeneralizationCount} total occurrences)`,
-      count: overgeneralizationCount,
+      phrase: `${overgeneralizationMatches.length} distinct pattern(s) (${counts.overgeneralization} total occurrences)`,
+      count: counts.overgeneralization,
       score: Math.round(Math.min(overgeneralizationMatches.length * 3, 25) * scoreFactor),
     });
   }
@@ -432,8 +434,8 @@ export function analyzeText(text: string): DetectionMetrics {
   if (elegantVariationMatches.length > 0) {
     patterns.push({
       category: 'Elegant Variation',
-      phrase: `${elegantVariationMatches.length} distinct pattern(s) (${elegantVariationCount} total occurrences)`,
-      count: elegantVariationCount,
+      phrase: `${elegantVariationMatches.length} distinct pattern(s) (${counts.elegantVariation} total occurrences)`,
+      count: counts.elegantVariation,
       score: Math.round(Math.min(elegantVariationMatches.length * 4, 25) * scoreFactor),
     });
   }
@@ -442,7 +444,7 @@ export function analyzeText(text: string): DetectionMetrics {
     patterns.push({
       category: 'False Ranges',
       phrase: `${falseRangesMatches.length} instance(s) of "from...to" constructions without coherent scales`,
-      count: falseRangesCount,
+      count: counts.falseRanges,
       score: Math.round(Math.min(falseRangesMatches.length * 6, 30) * scoreFactor),
     });
   }
