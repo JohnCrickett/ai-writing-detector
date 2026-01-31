@@ -18,80 +18,66 @@ import {
   detectSuperficialAnalysis,
   generateSuperficialAnalysisHighlights,
   SUPERFICIAL_ANALYSIS_COLOR,
-  type SuperficialAnalysisMatch,
 } from './superficialAnalysis';
 import {
   detectPromotionalLanguage,
   generatePromotionalLanguageHighlights,
   PROMOTIONAL_LANGUAGE_COLOR,
-  type PromotionalLanguageMatch,
 } from './promotionalLanguage';
 import {
   detectOutlineConclusions,
   generateOutlineConclusionHighlights,
   OUTLINE_CONCLUSION_COLOR,
-  type OutlineConclusionMatch,
 } from './outlineConclusion';
 import {
   detectNegativeParallelism,
   generateNegativeParallelismHighlights,
   NEGATIVE_PARALLELISM_COLOR,
-  type NegativeParallelismMatch,
 } from './negativeParallelism';
 import {
   detectRuleOfThree,
   generateRuleOfThreeHighlights,
   RULE_OF_THREE_COLOR,
-  type RuleOfThreeMatch,
 } from './ruleOfThree';
 import {
   detectVagueAttributions,
   generateVagueAttributionHighlights,
   VAGUE_ATTRIBUTION_COLOR,
-  type VagueAttributionMatch,
 } from './vagueAttributions';
 import {
   detectOvergeneralization,
   generateOvergeneralizationHighlights,
   OVERGENERALIZATION_COLOR,
-  type OvergeneralizationMatch,
 } from './overgeneralization';
 import {
   detectElegantVariation,
   generateElegantVariationHighlights,
   ELEGANT_VARIATION_COLOR,
-  type ElegantVariationMatch,
 } from './elegantVariation';
 import {
   detectFalseRanges,
   generateFalseRangesHighlights,
   FALSE_RANGES_COLOR,
-  type FalseRangeMatch,
 } from './falseRanges';
 import {
   detectFleschKincaidGradeLevel,
   FLESCH_KINCAID_COLOR,
-  type FleschKincaidResult,
 } from './fleschKincaid';
 import {
   detectLexicalDiversity,
   LEXICAL_DIVERSITY_COLOR,
-  type LexicalDiversityResult,
 } from './lexicalDiversity';
 import {
   detectNamedEntityDensity,
   NAMED_ENTITY_DENSITY_COLOR,
-  type NamedEntityMatch,
 } from './namedEntityDensity';
 import {
   detectParagraphCoherence,
   PARAGRAPH_COHERENCE_COLOR,
-  type ParagraphCoherenceMatch,
 } from './paragraphCoherence';
 import {
   detectPassiveVoiceFrequency,
   PASSIVE_VOICE_FREQUENCY_COLOR,
-  type PassiveVoiceFrequencyResult,
 } from './passiveVoiceFrequency';
 import {
   detectPunctuationPatterns,
@@ -100,22 +86,18 @@ import {
 import {
   detectRareWordUsage,
   RARE_WORD_USAGE_COLOR,
-  type RareWordMatch,
 } from './rareWordUsage';
 import {
   detectSentenceLengthVariation,
   SENTENCE_LENGTH_VARIATION_COLOR,
-  type SentenceLengthVariationResult,
 } from './sentenceLengthVariation';
 import {
   detectTransitionWordDensity,
   TRANSITION_WORD_DENSITY_COLOR,
-  type TransitionWordMatch,
 } from './transitionWordDensity';
 import {
   detectWordFrequencyDistribution,
   WORD_FREQUENCY_DISTRIBUTION_COLOR,
-  type WordFrequencyResult,
 } from './wordFrequencyDistribution';
 
 // Export colors for use in UI
