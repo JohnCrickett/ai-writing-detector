@@ -47,10 +47,10 @@ describe('Overgeneralization Detection', () => {
       expect(matches.some(m => m.phrase === 'such as')).toBe(true);
     });
 
-    it('should detect "like" as introducing non-exhaustive lists', () => {
+    it('should detect "like those" as introducing non-exhaustive lists', () => {
       const text = 'Her collaborations like those with Bad Bunny show her range.';
       const matches = detectOvergeneralization(text);
-      expect(matches.some(m => m.phrase === 'like')).toBe(true);
+      expect(matches.some(m => m.phrase === 'like those')).toBe(true);
     });
   });
 

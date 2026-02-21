@@ -43,29 +43,29 @@ describe('Lexical Diversity Detection (Type-Token Ratio)', () => {
   });
 
   describe('AI signal detection - high TTR (unnaturally diverse)', () => {
-    it('should flag text with high TTR (>0.65) as AI', () => {
+    it('should not flag short text with high TTR as AI (minimum 500 words)', () => {
       const aiText = 'The innovation paradigm offers transformative opportunities. The methodology facilitates comprehensive solutions. The framework enables strategic initiatives.';
       const result = detectLexicalDiversity(aiText);
-      expect(result.isAIPotential).toBe(true);
-      expect(result.reason).toContain('diverse vocabulary');
+      // Short text is excluded from analysis — TTR is unreliable below 500 words
+      expect(result.isAIPotential).toBe(false);
+      expect(result.reason).toContain('too short');
     });
 
-    it('should detect unnaturally diverse vocabulary in AI-like text', () => {
+    it('should not flag short diverse text as AI (minimum 500 words)', () => {
       const text = 'Implement strategies. Develop methodologies. Facilitate processes. Execute procedures. Deploy frameworks.';
       const result = detectLexicalDiversity(text);
-      // Each sentence uses different words
-      if (result.typeTokenRatio > 0.65) {
-        expect(result.isAIPotential).toBe(true);
-      }
+      // Short text is excluded from analysis
+      expect(result.isAIPotential).toBe(false);
     });
   });
 
   describe('AI signal detection - low TTR (unnaturally repetitive)', () => {
-    it('should flag text with low TTR (<0.35) as AI', () => {
+    it('should not flag short repetitive text as AI (minimum 500 words)', () => {
       const aiText = 'the model learns. the model learns. the model learns. the model learns. the model learns. the model learns. the model learns. the model learns.';
       const result = detectLexicalDiversity(aiText);
-      expect(result.isAIPotential).toBe(true);
-      expect(result.reason).toContain('Limited vocabulary');
+      // Short text is excluded from analysis
+      expect(result.isAIPotential).toBe(false);
+      expect(result.reason).toContain('too short');
     });
 
     it('should detect unnaturally repetitive vocabulary in AI-like text', () => {

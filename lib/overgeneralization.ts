@@ -35,7 +35,8 @@ const exhaustiveListPatterns = [
   { phrase: 'includes', description: 'Word "includes" can imply non-exhaustiveness when list is complete', category: 'exhaustive-list' as const },
   { phrase: 'include', description: 'Word "include" can imply non-exhaustiveness when list is complete', category: 'exhaustive-list' as const },
   { phrase: 'such as', description: 'Phrase suggests examples when actually presenting all items', category: 'exhaustive-list' as const },
-  { phrase: 'like', description: 'Suggests examples when actually presenting complete enumeration', category: 'exhaustive-list' as const },
+  { phrase: 'like those', description: 'Suggests examples when actually presenting complete enumeration', category: 'exhaustive-list' as const },
+  { phrase: 'like the ones', description: 'Suggests examples when actually presenting complete enumeration', category: 'exhaustive-list' as const },
   { phrase: 'including', description: 'Implies incomplete list when actually exhaustive', category: 'exhaustive-list' as const },
 ];
 

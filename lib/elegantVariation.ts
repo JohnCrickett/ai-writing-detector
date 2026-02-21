@@ -54,6 +54,41 @@ const synonymGroups: Record<string, string[]> = {
 };
 
 /**
+ * Common English words that frequently appear capitalized at sentence starts.
+ * These should never be treated as proper names.
+ */
+const COMMON_CAPITALIZED_WORDS = new Set([
+  'the', 'they', 'this', 'that', 'these', 'those', 'there', 'their',
+  'then', 'than', 'them', 'though', 'through', 'thus', 'therefore',
+  'he', 'her', 'his', 'him', 'here', 'how', 'however',
+  'she', 'some', 'such', 'so', 'still', 'since',
+  'we', 'what', 'when', 'where', 'which', 'while', 'who', 'why', 'with',
+  'it', 'its', 'if', 'in', 'into',
+  'an', 'and', 'are', 'as', 'at', 'all', 'also', 'any', 'after',
+  'but', 'be', 'been', 'before', 'both', 'by', 'because',
+  'can', 'could',
+  'do', 'did', 'does', 'during',
+  'each', 'even', 'every',
+  'for', 'from', 'first', 'few', 'further',
+  'get', 'got', 'given',
+  'had', 'has', 'have', 'having',
+  'just',
+  'keep',
+  'let', 'like',
+  'make', 'may', 'might', 'more', 'most', 'much', 'must', 'my',
+  'no', 'not', 'now', 'new', 'never',
+  'of', 'on', 'one', 'only', 'or', 'other', 'our', 'out', 'over',
+  'people', 'push',
+  'rather',
+  'same', 'should',
+  'take', 'three', 'too', 'two', 'to',
+  'up', 'us', 'use',
+  'very',
+  'was', 'were', 'will', 'would',
+  'you', 'your', 'yet',
+]);
+
+/**
  * Name variation patterns - for detecting different forms of the same name
  */
 interface NameVariation {
@@ -76,6 +111,10 @@ function extractNames(text: string): Map<string, string[]> {
   while ((match = namePattern.exec(text)) !== null) {
     const name = match[1];
     const normalized = name.toLowerCase();
+    // Skip common English words that appear capitalized at sentence starts
+    if (COMMON_CAPITALIZED_WORDS.has(normalized)) {
+      continue;
+    }
     names.push({ full: name, normalized });
     allNames.add(normalized);
   }

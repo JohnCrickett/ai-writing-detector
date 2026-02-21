@@ -83,7 +83,10 @@ export function detectLexicalDiversity(text: string): LexicalDiversityResult {
   let reason = '';
   let score = 0;
 
-  if (typeTokenRatio > 0.65) {
+  if (wordCount < 500) {
+    // Text too short for reliable TTR analysis — short texts naturally have high TTR
+    reason = `Text too short (${wordCount} words) for reliable lexical diversity analysis. Minimum 500 words recommended.`;
+  } else if (typeTokenRatio > 0.65) {
     // Unnaturally high diversity - many different words used with equal frequency
     isAIPotential = true;
     reason = `Unnaturally diverse vocabulary (TTR: ${typeTokenRatio.toFixed(3)}). Using ${uniqueWordCount} unique words in ${wordCount} total words suggests artificially varied word choices, characteristic of some AI systems trained on diverse corpora.`;
