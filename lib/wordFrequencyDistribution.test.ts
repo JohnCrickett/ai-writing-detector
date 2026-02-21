@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  detectWordFrequencyDistribution, 
+import {
+  detectWordFrequencyDistribution,
   calculateZipfianDeviation,
-  getWordFrequencies 
+  getWordFrequencies,
+  harmonicNumber
 } from './wordFrequencyDistribution';
 
 describe('Word Frequency Distribution Detection', () => {
@@ -41,46 +42,82 @@ describe('Word Frequency Distribution Detection', () => {
     });
   });
 
+  describe('Harmonic number', () => {
+    it('should compute known harmonic numbers correctly', () => {
+      expect(harmonicNumber(1)).toBeCloseTo(1.0, 10);
+      expect(harmonicNumber(2)).toBeCloseTo(1.5, 10);
+      expect(harmonicNumber(3)).toBeCloseTo(1.5 + 1 / 3, 10);
+      expect(harmonicNumber(10)).toBeCloseTo(2.9289682539682538, 8);
+    });
+
+    it('should return 0 for n=0', () => {
+      expect(harmonicNumber(0)).toBe(0);
+    });
+  });
+
   describe('Zipfian distribution analysis', () => {
+    it('should return low deviation for a perfectly Zipfian distribution', () => {
+      // Build frequencies that exactly follow Zipf: C/1, C/2, C/3, ...
+      const freqs = new Map<string, number>();
+      const C = 100;
+      for (let r = 1; r <= 10; r++) {
+        freqs.set(`word${r}`, Math.round(C / r));
+      }
+      const deviation = calculateZipfianDeviation(freqs);
+      // Should be very low — only rounding error
+      expect(deviation).toBeLessThan(0.1);
+    });
+
+    it('should return high deviation for a perfectly uniform distribution', () => {
+      // All words appear exactly the same number of times — maximally non-Zipfian
+      const freqs = new Map<string, number>();
+      for (let i = 0; i < 20; i++) {
+        freqs.set(`word${i}`, 5);
+      }
+      const deviation = calculateZipfianDeviation(freqs);
+      expect(deviation).toBeGreaterThan(0.3);
+    });
+
     it('should calculate reasonable Zipfian deviation for natural text', () => {
-      // Natural English text with somewhat Zipfian distribution
       const naturalText = 'the quick brown fox jumps over the lazy dog the cat sat on the mat the bird flew away the tree was tall';
       const deviation = calculateZipfianDeviation(naturalText);
-      // Natural text should have moderate deviation
       expect(deviation).toBeGreaterThan(0);
       expect(deviation).toBeLessThan(0.5);
     });
 
-    it('should flag unnaturally uniform distribution (AI-like)', () => {
-      // AI-like text with more uniform word distribution
+    it('should give higher deviation for uniform AI-like text than natural text', () => {
       const aiLikeText = 'implement strategies develop methodologies facilitate processes execute procedures deploy frameworks establish systems create protocols design approaches optimize methods enhance techniques';
-      const deviation = calculateZipfianDeviation(aiLikeText);
-      // Should have higher deviation (flatter distribution)
-      expect(deviation).toBeGreaterThanOrEqual(0);
+      const naturalText = 'the the the the and and and cat cat dog the bird the tree the sun and moon';
+      const aiDeviation = calculateZipfianDeviation(aiLikeText);
+      const naturalDeviation = calculateZipfianDeviation(naturalText);
+      expect(aiDeviation).toBeGreaterThan(naturalDeviation);
     });
 
-    it('should handle text with highly skewed distribution', () => {
-      const skewedText = 'the the the the the and and and cat dog bird bird bird bird bird bird bird bird bird bird';
-      const deviation = calculateZipfianDeviation(skewedText);
-      expect(deviation).toBeGreaterThan(0);
+    it('should accept pre-computed frequency map', () => {
+      const freqs = new Map<string, number>([['the', 10], ['and', 5], ['cat', 2], ['dog', 1]]);
+      const deviation = calculateZipfianDeviation(freqs);
+      expect(deviation).toBeGreaterThanOrEqual(0);
+      expect(deviation).toBeLessThanOrEqual(1);
     });
   });
 
   describe('AI signal detection', () => {
-    it('should detect AI text with uniform word distribution', () => {
-      // Words distributed more uniformly than natural Zipf's law
-      const aiText = 'The analysis indicates several important factors. The research demonstrates meaningful findings. The study shows significant results. The investigation reveals crucial data. The examination presents key information.';
-      const result = detectWordFrequencyDistribution(aiText);
-      if (result.deviation > 0.15) {
-        expect(result.isAIPotential).toBe(true);
-      }
+    it('should not flag natural text as AI-generated', () => {
+      const humanText = 'The old man sat by the river and watched the water flow past. He had been coming to this spot for years, ever since he was a young boy. The river was his place of peace, and he felt the calm wash over him every time he sat there. The trees swayed in the wind and the birds sang their songs. He thought about the days when he was young, when the world seemed so much bigger than it did now. But the river was still the same, and that was enough for him.';
+      const result = detectWordFrequencyDistribution(humanText);
+      expect(result.wordCount).toBeGreaterThan(50);
+      expect(result.isAIPotential).toBe(false);
     });
 
-    it('should detect text with natural Zipfian distribution', () => {
-      const humanText = 'The quick brown fox jumps over the lazy dog. A cat sat on the mat. Birds flew away. The tree was very tall. I like to walk in the park.';
-      const result = detectWordFrequencyDistribution(humanText);
-      // Natural text should have reasonable Zipfian distribution
-      expect(result.wordCount).toBeGreaterThan(0);
+    it('should flag highly uniform text as potential AI', () => {
+      // Every word appears exactly once — maximally uniform, very un-Zipfian
+      const words = [];
+      for (let i = 0; i < 30; i++) {
+        words.push(`word${i}`);
+      }
+      const result = detectWordFrequencyDistribution(words.join(' '));
+      expect(result.isAIPotential).toBe(true);
+      expect(result.score).toBeGreaterThan(0);
     });
 
     it('should handle short text appropriately', () => {

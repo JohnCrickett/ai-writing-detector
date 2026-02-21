@@ -69,14 +69,31 @@ export function getWordFrequencies(
 }
 
 /**
- * Calculate the deviation from expected Zipfian distribution
- * Uses multiple metrics:
- * 1. How much does the distribution deviate from the expected 1/rank pattern
- * 2. How uniform is the distribution (are all frequencies similar?)
+ * Compute the N-th harmonic number: H_N = 1 + 1/2 + 1/3 + ... + 1/N
  */
-export function calculateZipfianDeviation(text: string, ignoreStopwords: boolean = false): number {
-  const frequencies = getWordFrequencies(text, ignoreStopwords);
-  
+export function harmonicNumber(n: number): number {
+  let h = 0;
+  for (let k = 1; k <= n; k++) {
+    h += 1 / k;
+  }
+  return h;
+}
+
+/**
+ * Calculate the deviation from expected Zipfian distribution.
+ * Uses a chi-squared statistic to compare actual vs expected frequencies,
+ * combined with uniformity and frequency ratio metrics.
+ *
+ * Accepts pre-computed frequencies to avoid redundant tokenization.
+ */
+export function calculateZipfianDeviation(
+  textOrFrequencies: string | Map<string, number>,
+  ignoreStopwords: boolean = false
+): number {
+  const frequencies = typeof textOrFrequencies === 'string'
+    ? getWordFrequencies(textOrFrequencies, ignoreStopwords)
+    : textOrFrequencies;
+
   if (frequencies.size === 0) {
     return 0;
   }
@@ -85,22 +102,26 @@ export function calculateZipfianDeviation(text: string, ignoreStopwords: boolean
   const sortedFreqs = Array.from(frequencies.values()).sort((a, b) => b - a);
   const totalWords = sortedFreqs.reduce((sum, freq) => sum + freq, 0);
   const numWords = sortedFreqs.length;
-  
-  // Metric 1: Zipfian deviation - how much does actual distribution differ from C/rank?
-  // Use theoretical C based on total words and number of unique words
-  const C = totalWords / Math.log(numWords + 1); // Theoretical Zipfian constant
-  
-  let zipfianDeviation = 0;
+
+  // Metric 1: Chi-squared deviation from Zipf's law
+  // Zipf's law: frequency at rank r = C / r, where C = totalWords / H_N
+  const H_N = harmonicNumber(numWords);
+  const C = totalWords / H_N;
+
+  // Use chi-squared: sum of (observed - expected)^2 / expected
+  // Normalize by number of words to make it comparable across text lengths
+  let chiSquared = 0;
   for (let rank = 1; rank <= numWords; rank++) {
     const actualFreq = sortedFreqs[rank - 1];
     const expectedFreq = C / rank;
-    const relativeError = Math.abs(actualFreq - expectedFreq) / (expectedFreq || 1);
-    zipfianDeviation += relativeError;
+    if (expectedFreq > 0) {
+      chiSquared += Math.pow(actualFreq - expectedFreq, 2) / expectedFreq;
+    }
   }
-  zipfianDeviation = zipfianDeviation / numWords;
-  
-  // Metric 2: Uniformity - measure how similar all frequencies are
-  // Calculate coefficient of variation (std dev / mean)
+  // Normalize: divide by totalWords so the metric scales independently of text length
+  const normalizedChiSquared = chiSquared / totalWords;
+
+  // Metric 2: Uniformity - coefficient of variation (std dev / mean)
   const mean = totalWords / numWords;
   let variance = 0;
   for (const freq of sortedFreqs) {
@@ -109,29 +130,19 @@ export function calculateZipfianDeviation(text: string, ignoreStopwords: boolean
   variance = variance / numWords;
   const stdDev = Math.sqrt(variance);
   const uniformity = stdDev / mean; // Lower = more uniform (AI-like)
-  
-  // Metric 3: Max-Min ratio - ratio of most common to least common word
+
+  // Metric 3: Max-Min ratio
   const maxFreq = sortedFreqs[0];
   const minFreq = sortedFreqs[numWords - 1];
   const frequencyRatio = maxFreq / (minFreq || 1);
-  
-  // Natural language typically has:
-  // - Natural Zipfian deviation: 0.5-1.5
-  // - Uniformity: 0.5-0.8 (higher = more varied)
-  // - Max-Min ratio: 5-50 (higher = more skewed towards common words)
-  
-  // AI text typically has:
-  // - Higher Zipfian deviation: 1.5-3+
-  // - Lower uniformity: 0.1-0.4 (all words similar frequency)
-  // - Lower Max-Min ratio: 1-5 (all words have similar frequency)
-  
+
   // Combined metric: weight the different factors
-  // If uniformity is very low (< 0.3) or frequency ratio is very low (< 2), it's likely AI
-  const combinedDeviation = 
-    (zipfianDeviation * 0.4) +                    // Zipfian deviation contribution
-    ((1 - uniformity) * 0.3) +                    // Inverse of uniformity (higher = more uniform/AI)
-    ((5 - Math.min(frequencyRatio, 5)) / 5 * 0.3); // Inverse of frequency ratio
-  
+  // Clamp uniformity contribution to [0, 1] so it can't go negative
+  const combinedDeviation =
+    (Math.min(normalizedChiSquared, 2) / 2 * 0.4) +          // Chi-squared contribution (capped at 2, scaled to 0-0.4)
+    (Math.max(0, 1 - uniformity) * 0.3) +                     // Inverse of uniformity, clamped non-negative
+    ((5 - Math.min(frequencyRatio, 5)) / 5 * 0.3);            // Inverse of frequency ratio
+
   return Math.min(combinedDeviation, 1.0);
 }
 
@@ -180,14 +191,12 @@ export function detectWordFrequencyDistribution(
     word,
     frequency,
   }));
-  
-  // Calculate Zipfian deviation
-  const deviation = calculateZipfianDeviation(text, ignoreStopwords);
-  
+
+  // Calculate Zipfian deviation (pass pre-computed frequencies to avoid redundant work)
+  const deviation = calculateZipfianDeviation(frequencies);
+
   // Determine if distribution is abnormal
-  // Threshold: deviation > 0.05 suggests deviation from natural distribution
-  // Most natural text: 0.02-0.08, AI text: 0.08-0.25+
-  const threshold = 0.05;
+  const threshold = 0.15;
   let isAIPotential = false;
   let reason = '';
   let score = 0;
@@ -210,7 +219,7 @@ export function detectWordFrequencyDistribution(
       reason = `Unusual word frequency skew (deviation: ${deviation.toFixed(3)}). Distribution shows atypical patterns compared to natural Zipfian law, potentially indicating AI-generated text.`;
     }
     
-    score = Math.min(Math.round(Math.min((deviation - threshold) * 100, 25)), 25);
+    score = Math.min(Math.round((deviation - threshold) / (1 - threshold) * 25), 25);
   } else {
     reason = `Natural word frequency distribution (deviation: ${deviation.toFixed(3)}). The distribution follows expected Zipfian patterns found in human-written text.`;
   }
