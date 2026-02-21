@@ -52,12 +52,20 @@ describe('Punctuation Patterns Detection', () => {
       expect(aiSignal).toBeDefined();
     });
 
-    it('should flag low ellipsis usage in conversational text', () => {
-      const text = 'So there are three things. First, it works. Second, it matters. And third, well, we need more data.';
+    it('should flag low ellipsis usage in conversational text with multiple markers', () => {
+      const text = 'So I think there are three things, you know. First, it works. Second, it matters. And third, honestly, we need more data.';
       const matches = detectPunctuationPatterns(text);
       const signal = matches.find(m => m.phrase.includes('Low ellipsis'));
       // Conversational text without ellipses despite conversational tone
       expect(signal).toBeDefined();
+    });
+
+    it('should not flag low ellipsis usage when text is not truly conversational', () => {
+      const text = 'Sounds like an AI problem. It took down Cost Explorer. Push hard for adoption without pushing equally hard to create the right processes.';
+      const matches = detectPunctuationPatterns(text);
+      const signal = matches.find(m => m.phrase.includes('Low ellipsis'));
+      // Normal prose using "like" as a preposition should not trigger
+      expect(signal).toBeUndefined();
     });
   });
 

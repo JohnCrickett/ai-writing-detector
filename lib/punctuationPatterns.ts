@@ -108,14 +108,26 @@ export function detectPunctuationPatterns(text: string): PatternMatch[] {
   }
 
   // AI signals: Very low ellipsis usage despite potential conversational tone
-  // Detect conversational tone by looking for casual words or exclamations
-  const hasConversationalTone = /\b(so|well|like|you know|I think|I mean|basically|honestly|actually)\b/i.test(text);
-  if (hasConversationalTone && ellipsisDensity < 0.01) {
+  // Detect conversational tone by counting casual filler words/phrases
+  // Require multiple indicators to avoid false positives from normal prose usage
+  // (e.g. "sounds like" uses "like" as a preposition, not a filler)
+  const conversationalMarkers = [
+    /\b(you know)\b/i,
+    /\b(I think)\b/i,
+    /\b(I mean)\b/i,
+    /\b(basically)\b/i,
+    /\b(honestly)\b/i,
+    /\b(kinda|gonna|wanna|gotta)\b/i,
+    /\b(right\?)/i,
+    /\b(oh|wow|hmm|huh|yeah|nah|nope|yep)\b/i,
+  ];
+  const conversationalMatchCount = conversationalMarkers.filter(r => r.test(text)).length;
+  if (conversationalMatchCount >= 2 && ellipsisDensity < 0.01) {
     matches.push({
       category: 'AI Signal',
       phrase: `Low ellipsis usage (${(ellipsisDensity * 100).toFixed(2)}%) despite conversational tone - AI avoids casual ellipses`,
       count: ellipses,
-      score: 40,
+      score: 20,
     });
   }
 
