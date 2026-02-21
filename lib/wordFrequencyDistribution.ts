@@ -201,9 +201,9 @@ export function detectWordFrequencyDistribution(
   let reason = '';
   let score = 0;
   
-  if (totalWords < 20) {
+  if (totalWords < 5000) {
     // Text too short for reliable analysis
-    reason = `Text too short (${totalWords} words) for reliable word frequency analysis. Minimum 20 words recommended.`;
+    reason = `Text too short (${totalWords} words) for reliable word frequency analysis. Minimum 5,000 words recommended.`;
   } else if (deviation > threshold) {
     isAIPotential = true;
     

@@ -521,7 +521,7 @@ export function analyzeText(text: string): DetectionMetrics {
   // Calculate word frequency distribution factor (0-100)
   // Scale deviation to percentage (0-100)
   let wordFrequencyDistributionFactor = 0;
-  if (wordFrequencyDistributionResult.wordCount >= 20) {
+  if (wordFrequencyDistributionResult.wordCount >= 5000) {
     // Scale deviation from 0.05 (threshold) to 0.3 (max realistic) as 0-100%
     const threshold = 0.05;
     const maxDeviation = 0.3;

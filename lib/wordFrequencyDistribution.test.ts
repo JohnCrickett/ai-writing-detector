@@ -109,15 +109,16 @@ describe('Word Frequency Distribution Detection', () => {
       expect(result.isAIPotential).toBe(false);
     });
 
-    it('should flag highly uniform text as potential AI', () => {
+    it('should not flag uniform text under 5000 words', () => {
       // Every word appears exactly once — maximally uniform, very un-Zipfian
+      // But below the 5,000-word minimum, so should not be flagged
       const words = [];
       for (let i = 0; i < 30; i++) {
         words.push(`word${i}`);
       }
       const result = detectWordFrequencyDistribution(words.join(' '));
-      expect(result.isAIPotential).toBe(true);
-      expect(result.score).toBeGreaterThan(0);
+      expect(result.isAIPotential).toBe(false);
+      expect(result.reason).toContain('too short');
     });
 
     it('should handle short text appropriately', () => {
